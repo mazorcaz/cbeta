@@ -2,11 +2,12 @@
 
 # flags
 CC := gcc
-CFLAGS := -Wall -Wextra -Isrc
+CFLAGS := -Wall -Wextra -Iinclude $(shell sdl2-config --cflags)
+LDLIBS := $(shell sdl2-config --libs)
 
 # files
-SRCS := $(shell find src/ -name *.c)
-HDRS := $(shell find src/ -name *.h)
+SRCS := $(shell find src/ -name "*.c")
+HDRS := $(shell find src/ -name "*.h")
 OBJS := $(patsubst src/%.c,obj/%.o,$(SRCS))
 
 .PHONY: all clean
@@ -22,7 +23,7 @@ clean:
 bin/cbeta: $(OBJS)
 	@echo "Building $@"
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) $^ -o $@
+	$(CC) $^ -o $@ $(LDLIBS)
 	@echo
 
 obj/%.o: src/%.c $(HDRS)
