@@ -26,7 +26,6 @@ bool cb_engine_init(struct cb_engine* engine) {
 		printf("cb_engine_init: failed to open window: %s\n", SDL_GetError());
 		return false;
 	}
-	engine->aspect = 800 / 600;
 	
 	// create opengl ctx
 	engine->ctx = SDL_GL_CreateContext(engine->window);
@@ -60,6 +59,7 @@ void cb_engine_run(struct cb_engine* engine) {
 	engine->lt = SDL_GetTicks64();
 	engine->focused = false;
 	engine->running = true;
+	engine->aspect = 800.0f / 600.0f;
 	
 	cb_render_chunk_bake(&engine->chunk, engine->test_texture.id);
 	
@@ -77,6 +77,7 @@ void cb_engine_run(struct cb_engine* engine) {
 			else if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED) {
 				glViewport(0, 0, event.window.data1, event.window.data2);
 				engine->aspect = (float)event.window.data1 / (float)event.window.data2;
+				cb_set_perspective(100.0f, engine->aspect, 0.1f, 100.0f);
 			} else if (event.type == SDL_MOUSEMOTION) {
 				if (engine->focused) 
 					cb_camera_handle_mouse(&engine->camera, event.motion.xrel, event.motion.yrel);
@@ -98,8 +99,6 @@ void cb_engine_run(struct cb_engine* engine) {
 		cb_camera_handle_keys(&engine->camera, state, dt);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		cb_set_perspective(100.0f, engine->aspect, 0.1f, 100.0f);
 		
 		glMatrixMode(GL_MODELVIEW);
 		cb_camera_apply(&engine->camera);

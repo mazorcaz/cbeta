@@ -9,7 +9,7 @@ bool cb_resource_load(struct cb_resource* resource, const char* file) {
 		return false;
 	}
 	int length = strlen(base_path);
-	char* path = malloc(length + 80);
+	char* path = malloc(length + strlen(file) + 1);
 	if (!path) {
 		printf("cb_resource_load: malloc failed\n");
 		return false;

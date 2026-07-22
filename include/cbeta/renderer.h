@@ -6,7 +6,6 @@
 #include <stdint.h>
 #include <SDL2/SDL.h>
 #include <GL/gl.h>
-#include <cbeta/camera.h>
 
 struct cb_cube {
 	GLfloat* vertices;
