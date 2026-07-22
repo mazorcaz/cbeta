@@ -50,36 +50,74 @@ int main() {
 
 	// vertices
 	GLfloat vertices[] = {
-		-1.0f, -1.0f,  1.0f,
-		 1.0f, -1.0f,  1.0f,
+		// front
 		 1.0f,  1.0f,  1.0f,
 		-1.0f,  1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f,
+		
+		// back
+		-1.0f, -1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+
+		// top
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f,  1.0f,
+
+		//bottom
 		-1.0f, -1.0f, -1.0f,
 		 1.0f, -1.0f, -1.0f,
-		 1.0f,  1.0f, -1.0f,
-		-1.0f,  1.0f, -1.0f
+		 1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		// left
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		// right
+		 1.0f,  1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f
 	};
 
 	// colors
 	GLfloat colors[] = {
 		1.0f, 0.0f, 0.0f,
-		0.0f, 1.0f, 0.0f,
-		0.0f, 0.0f, 1.0f,
-		0.0f, 1.0f, 1.0f,
-		1.0f, 0.0f, 1.0f,
-		1.0f, 1.0f, 0.0f,
-		0.5f, 1.0f, 0.0f,
-		0.0f, 1.0f, 0.5f
-	};
+		1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
 
-	// indices
-	GLubyte indices[] = {
-		0, 1, 2, 3,
-		4, 7, 6, 5,
-		4, 0, 3, 7,
-		1, 5, 6, 2,
-		3, 2, 6, 7,
-		4, 5, 1, 0
+		0.0f, 1.0f, 0.0f,
+		0.0f, 1.0f, 0.0f,
+		0.0f, 1.0f, 0.0f,
+		0.0f, 1.0f, 0.0f,
+
+		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f,
+
+		0.0f, 1.0f, 1.0f,
+		0.0f, 1.0f, 1.0f,
+		0.0f, 1.0f, 1.0f,
+		0.0f, 1.0f, 1.0f,
+
+		1.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 1.0f,
+
+		1.0f, 1.0f, 0.0f,
+		1.0f, 1.0f, 0.0f,
+		1.0f, 1.0f, 0.0f,
+		1.0f, 1.0f, 0.0f,
 	};
 
 	struct cb_camera camera;
@@ -120,7 +158,7 @@ int main() {
 		glVertexPointer(3, GL_FLOAT, 0, vertices);
 		glColorPointer(3, GL_FLOAT, 0, colors);
 
-		glDrawElements(GL_QUADS, 24, GL_UNSIGNED_BYTE, indices);
+		glDrawArrays(GL_QUADS, 0, 24);
 
 		glDisableClientState(GL_VERTEX_ARRAY);
 		glDisableClientState(GL_COLOR_ARRAY);
