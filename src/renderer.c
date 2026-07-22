@@ -8,7 +8,7 @@ void cb_cube_init(struct cb_cube* cube, float x, float y, float z) {
 	cube->z = z;
 }
 
-void cb_cube_render(struct cb_cube* cube, struct cb_camera* camera) {
+void cb_cube_render(struct cb_cube* cube) {
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_TEXTURE_2D);
@@ -16,16 +16,17 @@ void cb_cube_render(struct cb_cube* cube, struct cb_camera* camera) {
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
+	glMatrixMode(GL_MODELVIEW);	
+	
+	glPushMatrix();
+	
 	glBindTexture(GL_TEXTURE_2D, cube->texture);
 	glVertexPointer(3, GL_FLOAT, 0, cube->vertices);
 	glTexCoordPointer(2, GL_FLOAT, 0, cube->texcoords);
-
-	glMatrixMode(GL_MODELVIEW);
-	cb_camera_apply(camera);
-	
 	glTranslatef(cube->x, cube->y, cube->z);
-
 	glDrawArrays(GL_QUADS, 0, 24);
+	
+	glPopMatrix();
 
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -39,7 +40,7 @@ void cb_render_chunk_init(struct cb_render_chunk* chunk) {
 	chunk->list = 0;
 }
 
-void cb_render_chunk_bake(struct cb_render_chunk* chunk, GLuint texture, struct cb_camera* camera) {
+void cb_render_chunk_bake(struct cb_render_chunk* chunk, GLuint texture) {
 	if (chunk->list) glDeleteLists(chunk->list, 1);
 	chunk->list = glGenLists(1);
 	
@@ -60,7 +61,7 @@ void cb_render_chunk_bake(struct cb_render_chunk* chunk, GLuint texture, struct 
 				cube.y = (float)y - 8.0f;
 				cube.z = (float)z - 20.0f;
 				
-				cb_cube_render(&cube, camera);
+				cb_cube_render(&cube);
 			}
 		}
 	}

@@ -16,7 +16,7 @@ struct cb_cube {
 };
 
 void cb_cube_init(struct cb_cube* cube, float x, float y, float z);
-void cb_cube_render(struct cb_cube* cube, struct cb_camera* camera);
+void cb_cube_render(struct cb_cube* cube);
 void cb_cube_free(struct cb_cube* cube);
 
 struct cb_render_chunk {
@@ -25,7 +25,7 @@ struct cb_render_chunk {
 };
 
 void cb_render_chunk_init(struct cb_render_chunk* chunk);
-void cb_render_chunk_bake(struct cb_render_chunk* chunk, GLuint texture, struct cb_camera* camera);
+void cb_render_chunk_bake(struct cb_render_chunk* chunk, GLuint texture);
 void cb_render_chunk_render(struct cb_render_chunk* chunk);
 void cb_render_chunk_free(struct cb_render_chunk* chunk);
 

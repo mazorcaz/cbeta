@@ -61,6 +61,8 @@ void cb_engine_run(struct cb_engine* engine) {
 	engine->focused = false;
 	engine->running = true;
 	
+	cb_render_chunk_bake(&engine->chunk, engine->test_texture.id);
+	
 	SDL_Event event;
 	while (engine->running) {
 		// time
@@ -99,7 +101,8 @@ void cb_engine_run(struct cb_engine* engine) {
 
 		cb_set_perspective(100.0f, engine->aspect, 0.1f, 100.0f);
 		
-		cb_render_chunk_bake(&engine->chunk, engine->test_texture.id, &engine->camera);
+		glMatrixMode(GL_MODELVIEW);
+		cb_camera_apply(&engine->camera);
 		cb_render_chunk_render(&engine->chunk);
 
 		SDL_GL_SwapWindow(engine->window);
