@@ -3,11 +3,11 @@
 # flags
 CC := gcc
 CFLAGS := -Wall -Wextra -Iinclude $(shell sdl2-config --cflags)
-LDLIBS := $(shell sdl2-config --libs)
+LDLIBS := $(shell sdl2-config --libs) -lGL -lm
 
 # files
 SRCS := $(shell find src/ -name "*.c")
-HDRS := $(shell find src/ -name "*.h")
+HDRS := $(shell find include/ -name "*.h")
 OBJS := $(patsubst src/%.c,obj/%.o,$(SRCS))
 
 .PHONY: all clean
