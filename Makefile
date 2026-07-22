@@ -23,6 +23,7 @@ clean:
 bin/resources: resources
 	@echo "Building resources"
 	@mkdir -p $(dir $@)
+	@rm -rf $@
 	cp -r resources $@
 	@echo
 

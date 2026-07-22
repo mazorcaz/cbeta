@@ -13,7 +13,7 @@ struct cb_render_chunk {
 };
 
 void cb_render_chunk_init(struct cb_render_chunk* chunk);
-void cb_render_chunk_bake(struct cb_render_chunk* chunk, GLuint texture);
+void cb_render_chunk_bake(struct cb_render_chunk* chunk, GLuint texture, float* vertices, float* texcoords);
 void cb_render_chunk_render(struct cb_render_chunk* chunk);
 void cb_render_chunk_free(struct cb_render_chunk* chunk);
 

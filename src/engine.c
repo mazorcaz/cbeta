@@ -39,13 +39,21 @@ bool cb_engine_init(struct cb_engine* engine) {
 	cb_camera_init(&engine->camera);
 	
 	// texture
-	if (!cb_resource_load(&engine->test_texture, "resources/test.png")) {
-		printf("cb_engine_init: failed to load texture");
+	if (!cb_resource_load(&engine->test_texture, "resources/terrain.png")) {
+		printf("cb_engine_init: failed to load texture\n");
 		return false;
 	}
 	
 	// chunk
 	cb_render_chunk_init(&engine->chunk);
+	
+	// scratch
+	engine->vertices = malloc(4096 * 6 * 4 * 3 * sizeof(float));
+	engine->texcoords = malloc(4096 * 6 * 4 * 2 * sizeof(float));
+	if (!engine->vertices || !engine->vertices) {
+		printf("cb_engine_init: malloc failed\n");
+		return false;
+	}
 	
 	// success
 	printf("cbeta initialized successfully\n");
@@ -61,7 +69,21 @@ void cb_engine_run(struct cb_engine* engine) {
 	engine->running = true;
 	engine->aspect = 800.0f / 600.0f;
 	
-	cb_render_chunk_bake(&engine->chunk, engine->test_texture.id);
+	int i=0;
+	for (int z=0; z<16; z++) {
+		for (int y=0; y<16; y++) {
+			for (int x=0; x<16; x++, i++) {
+				if (y == 15)
+					engine->chunk.blocks[i] = 3;
+				else if (y > 9)
+					engine->chunk.blocks[i] = 2;
+				else
+					engine->chunk.blocks[i] = 1;
+			}
+		}
+	}
+	
+	cb_render_chunk_bake(&engine->chunk, engine->test_texture.id, engine->vertices, engine->texcoords);
 	
 	SDL_Event event;
 	while (engine->running) {

@@ -22,6 +22,8 @@ struct cb_engine {
 	bool running;
 	bool focused;
 	float aspect;
+	float* vertices;
+	float* texcoords;
 	
 	struct cb_camera camera;
 	struct cb_resource test_texture;
