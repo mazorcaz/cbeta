@@ -2,40 +2,6 @@
 
 #include <cbeta/renderer.h>
 
-void cb_cube_init(struct cb_cube* cube, float x, float y, float z) {
-	cube->x = x;
-	cube->y = y;
-	cube->z = z;
-}
-
-void cb_cube_render(struct cb_cube* cube) {
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
-	glEnable(GL_TEXTURE_2D);
-
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-	glMatrixMode(GL_MODELVIEW);	
-	
-	glPushMatrix();
-	
-	glBindTexture(GL_TEXTURE_2D, cube->texture);
-	glVertexPointer(3, GL_FLOAT, 0, cube->vertices);
-	glTexCoordPointer(2, GL_FLOAT, 0, cube->texcoords);
-	glTranslatef(cube->x, cube->y, cube->z);
-	glDrawArrays(GL_QUADS, 0, 24);
-	
-	glPopMatrix();
-
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-}
-
-void cb_cube_free(struct cb_cube* cube) {
-	// do nothing
-}
-
 void cb_render_chunk_init(struct cb_render_chunk* chunk) {
 	chunk->list = 0;
 }
@@ -45,28 +11,35 @@ void cb_render_chunk_bake(struct cb_render_chunk* chunk, GLuint texture) {
 	chunk->list = glGenLists(1);
 	
 	glNewList(chunk->list, GL_COMPILE);
-	
-	struct cb_cube cube;
-	cb_cube_init(&cube, 0.0f, 0.0f, 0.0f);
-	cube.vertices = cb_cube_vertices;
-	cube.texcoords = cb_cube_texcoords;
-	cube.texture = texture;
+				
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_TEXTURE_2D);
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	
 	for (int x=0; x<16; x++) {
 		for (int y=0; y<16; y++) {
 			for (int z=0; z<16; z++) {
 				int i = x + (y * 16) + (z * 256);
+
+				glMatrixMode(GL_MODELVIEW);	
+				glPushMatrix();
+
+				glBindTexture(GL_TEXTURE_2D, texture);
+				glVertexPointer(3, GL_FLOAT, 0, cb_cube_vertices);
+				glTexCoordPointer(2, GL_FLOAT, 0, cb_cube_texcoords);
+				glTranslatef((float)x - 8.0f, (float)y - 8.0f, (float)z - 20.0f);
+				glDrawArrays(GL_QUADS, 0, 24);
 				
-				cube.x = (float)x - 8.0f;
-				cube.y = (float)y - 8.0f;
-				cube.z = (float)z - 20.0f;
-				
-				cb_cube_render(&cube);
+				glPopMatrix();
+
 			}
 		}
 	}
-	
-	cb_cube_free(&cube);
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	
 	glEndList();
 }

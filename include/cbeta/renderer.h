@@ -7,17 +7,6 @@
 #include <SDL2/SDL.h>
 #include <GL/gl.h>
 
-struct cb_cube {
-	GLfloat* vertices;
-	GLfloat* texcoords;
-	GLuint texture;
-	float x, y, z;
-};
-
-void cb_cube_init(struct cb_cube* cube, float x, float y, float z);
-void cb_cube_render(struct cb_cube* cube);
-void cb_cube_free(struct cb_cube* cube);
-
 struct cb_render_chunk {
 	GLuint list;
 	uint8_t blocks[4096];
