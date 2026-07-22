@@ -46,6 +46,13 @@ void cb_camera_free(struct cb_camera* camera) {
 	// do nothing
 }
 
+void cb_camera_apply(struct cb_camera* camera) {	
+	glLoadIdentity();
+	glRotatef(camera->pitch, 1.0f, 0.0f, 0.0f);
+	glRotatef(camera->yaw + 90, 0.0f, 1.0f, 0.0f);
+	glTranslatef(-camera->x, -camera->y, -camera->z);
+}
+
 void cb_set_perspective(float fov, float aspect, float znear, float zfar) {
 	float f = (fov * (float)M_PI / 180.0f) / 2.0f;
 

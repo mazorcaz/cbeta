@@ -3,7 +3,7 @@
 # flags
 CC := gcc
 CFLAGS := -Wall -Wextra -Iinclude $(shell sdl2-config --cflags)
-LDLIBS := $(shell sdl2-config --libs) -lGL -lm
+LDLIBS := -lSDL2 -lSDL2_image -lGL -lm
 
 # files
 SRCS := $(shell find src/ -name "*.c")
@@ -20,10 +20,16 @@ clean:
 	rm -rf bin/
 	@echo
 
-bin/cbeta: $(OBJS)
+bin/resources: resources
+	@echo "Building resources"
+	@mkdir -p $(dir $@)
+	cp -r resources $@
+	@echo
+
+bin/cbeta: $(OBJS) bin/resources
 	@echo "Building $@"
 	@mkdir -p $(dir $@)
-	$(CC) $^ -o $@ $(LDLIBS)
+	$(CC) $(OBJS) -o $@ $(LDLIBS)
 	@echo
 
 obj/%.o: src/%.c $(HDRS)

@@ -1,0 +1,117 @@
+// engine.c
+
+#include <cbeta/engine.h>
+
+bool cb_engine_init(struct cb_engine* engine) {
+	
+	// init sdl
+	SDL_SetHint(SDL_HINT_VIDEODRIVER, "wayland,x11");
+	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+		printf("cb_engine_init: failed to init sdl: %s\n", SDL_GetError());
+		return false;
+	}
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 1);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+	
+	// create window
+	engine->window = SDL_CreateWindow(
+		"cbeta",
+		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+		800, 600,
+		SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
+	);
+	if (!engine->window) {
+		printf("cb_engine_init: failed to open window: %s\n", SDL_GetError());
+		return false;
+	}
+	engine->aspect = 800 / 600;
+	
+	// create opengl ctx
+	engine->ctx = SDL_GL_CreateContext(engine->window);
+	if (!engine->ctx) {
+		printf("cb_engine_init: failed to get opengl context: %s\n", SDL_GetError());
+		return false;
+	}
+	SDL_GL_SetSwapInterval(1);
+	
+	// camera
+	cb_camera_init(&engine->camera);
+	
+	// texture
+	if (!cb_resource_load(&engine->test_texture, "resources/test.png")) {
+		printf("cb_engine_init: failed to load texture");
+		return false;
+	}
+	
+	// chunk
+	cb_render_chunk_init(&engine->chunk);
+	
+	// success
+	printf("cbeta initialized successfully\n");
+	printf("Video Driver: %s\n", SDL_GetCurrentVideoDriver());
+	printf("GL Renderer: %s\n", glGetString(GL_RENDERER));
+	printf("GL Version: %s\n", glGetString(GL_VERSION));
+	return true;
+}
+
+void cb_engine_run(struct cb_engine* engine) {
+	engine->lt = SDL_GetTicks64();
+	engine->focused = false;
+	engine->running = true;
+	
+	SDL_Event event;
+	while (engine->running) {
+		// time
+		uint64_t ct = SDL_GetTicks64();
+		uint64_t dt = ct - engine->lt;
+		engine->lt = ct;
+
+		// events
+		while (SDL_PollEvent(&event)) {
+			if (event.type == SDL_QUIT)
+				engine->running = false;
+			else if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED) {
+				glViewport(0, 0, event.window.data1, event.window.data2);
+				engine->aspect = (float)event.window.data1 / (float)event.window.data2;
+			} else if (event.type == SDL_MOUSEMOTION) {
+				if (engine->focused) 
+					cb_camera_handle_mouse(&engine->camera, event.motion.xrel, event.motion.yrel);
+			} else if (event.type == SDL_KEYDOWN) {
+				if (event.key.keysym.sym == SDLK_ESCAPE) {
+					SDL_SetRelativeMouseMode(SDL_FALSE);
+					engine->focused = false;
+				}
+			} else if (event.type == SDL_MOUSEBUTTONDOWN) {
+				if (event.button.button == SDL_BUTTON_LEFT) {
+					SDL_SetRelativeMouseMode(SDL_TRUE);
+					engine->focused = true;
+				}
+			}
+		}
+
+		const uint8_t* state = SDL_GetKeyboardState(NULL);
+
+		cb_camera_handle_keys(&engine->camera, state, dt);
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		cb_set_perspective(100.0f, engine->aspect, 0.1f, 100.0f);
+		
+		cb_render_chunk_bake(&engine->chunk, engine->test_texture.id, &engine->camera);
+		cb_render_chunk_render(&engine->chunk);
+
+		SDL_GL_SwapWindow(engine->window);
+	}
+}
+
+void cb_engine_free(struct cb_engine* engine) {
+	cb_render_chunk_free(&engine->chunk);
+	cb_resource_free(&engine->test_texture);
+	cb_camera_free(&engine->camera);
+	
+	SDL_GL_DeleteContext(&engine->ctx);
+	SDL_DestroyWindow(engine->window);
+	SDL_Quit();
+}

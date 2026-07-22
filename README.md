@@ -6,7 +6,7 @@ A client for minecraft beta 1.7.3
 
 Since its not done, you must build it yourself
 
-It requires libsdl2-dev and opengl 1.1.
+It requires libsdl2-dev and libsdl2-image-dev and opengl 1.1.
 
 do
 
