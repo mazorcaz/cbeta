@@ -16,7 +16,12 @@ void cb_camera_init(struct cb_camera* camera) {
 
 void cb_camera_handle_mouse(struct cb_camera* camera, float dx, float dy) {
 	camera->pitch += dy * camera->sensitivity;
+	if (camera->pitch > 89.0f) camera->pitch = 89.0f;
+	if (camera->pitch < -89.0f) camera->pitch = -89.0f;
+
 	camera->yaw += dx * camera->sensitivity;
+	if (camera->yaw >= 360.0f) camera->yaw -= 360.0f;
+	if (camera->yaw < 0.0f) camera->yaw += 360.0f;
 }
 
 void cb_camera_handle_keys(struct cb_camera* camera, const uint8_t* keys, uint64_t dt) {
@@ -39,4 +44,17 @@ void cb_camera_handle_keys(struct cb_camera* camera, const uint8_t* keys, uint64
 
 void cb_camera_free(struct cb_camera* camera) {
 	// do nothing
+}
+
+void cb_set_perspective(float fov, float aspect, float znear, float zfar) {
+	float f = (fov * (float)M_PI / 180.0f) / 2.0f;
+
+	float top = znear * tanf(f);
+	float bottom = -top;
+	float right = top * aspect;
+	float left = -right;
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glFrustum(left, right, bottom, top, znear, zfar);
 }

@@ -24,7 +24,7 @@ int main() {
 		"cbeta",
 		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 		800, 600,
-		SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN
+		SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
 	);
 
 	if (!window) {
@@ -126,6 +126,7 @@ int main() {
 	// event loop
 	uint64_t lt = SDL_GetTicks64();
 	bool running = true;
+	float aspect = 800.0f / 600.0f;
 	SDL_Event event;
 	while (running) {
 		// time
@@ -139,6 +140,7 @@ int main() {
 				running = false;
 			else if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED) {
 				glViewport(0, 0, event.window.data1, event.window.data2);
+				aspect = (float)event.window.data1 / (float)event.window.data2;
 			} else if (event.type == SDL_MOUSEMOTION) {
 				cb_camera_handle_mouse(&camera, event.motion.xrel, event.motion.yrel);
 			}
@@ -151,6 +153,7 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_CULL_FACE);
 
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_COLOR_ARRAY);
@@ -158,20 +161,21 @@ int main() {
 		glVertexPointer(3, GL_FLOAT, 0, vertices);
 		glColorPointer(3, GL_FLOAT, 0, colors);
 
-		glDrawArrays(GL_QUADS, 0, 24);
-
-		glDisableClientState(GL_VERTEX_ARRAY);
-		glDisableClientState(GL_COLOR_ARRAY);
-
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		glFrustum(-1.0, 1.0, -0.75, 0.75, 1.0, 100.0);
+		cb_set_perspective(100.0f, aspect, 0.1f, 10.0f);
+		//glFrustum(-1.0, 1.0, -0.75, 0.75, 1.0, 100.0);
 
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 		glRotatef(camera.pitch, 1.0f, 0.0f, 0.0f);
 		glRotatef(camera.yaw + 90, 0.0f, 1.0f, 0.0f);
 		glTranslatef(-camera.x, -camera.y, -camera.z - 5.0f);
+
+		glDrawArrays(GL_QUADS, 0, 24);
+
+		glDisableClientState(GL_VERTEX_ARRAY);
+		glDisableClientState(GL_COLOR_ARRAY);
 
 		SDL_GL_SwapWindow(window);
 	}
