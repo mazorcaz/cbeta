@@ -44,8 +44,8 @@ bool cb_engine_init(struct cb_engine* engine) {
 	////////////////////
 	
 	// scratch
-	engine->vertices = malloc(4096 * 6 * 4 * 3 * sizeof(float));
-	engine->texcoords = malloc(4096 * 6 * 4 * 2 * sizeof(float));
+	engine->vertices = malloc(4096 * 64 * 4 * 3 * sizeof(float));
+	engine->texcoords = malloc(4096 * 64 * 4 * 2 * sizeof(float));
 	if (!engine->vertices || !engine->texcoords) {
 		printf("cb_engine_init: malloc failed\n");
 		return false;
@@ -73,9 +73,7 @@ bool cb_engine_init(struct cb_engine* engine) {
 		for (int y=0; y<16; y++) {
 			for (int x=0; x<16; x++, i++) {
 				if (y == 15) {
-					if (i % 3 == 0) engine->chunk.blocks[i] = CB_MATERIAL_OAK_SAPLING;
-					if (i % 3 == 1) engine->chunk.blocks[i] = CB_MATERIAL_SPRUCE_SAPLING;
-					if (i % 3 == 2) engine->chunk.blocks[i] = CB_MATERIAL_BIRCH_SAPLING;
+					engine->chunk.blocks[i] = CB_MATERIAL_FENCE;
 				}
 				else if (y == 14)
 					engine->chunk.blocks[i] = CB_MATERIAL_GRASS;

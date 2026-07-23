@@ -25,6 +25,17 @@ void cb_material_bake(struct cb_material* material) {
 			material->texcoords[i*8+6] = (cb_cross_texcoords[i*8+6] + material->offsets[0]) / 16.0f;
 			material->texcoords[i*8+7] = (cb_cross_texcoords[i*8+7] + material->offsets[1]) / 16.0f;
 		}
+	} else if (material->render_type == CB_RENDER_TYPE_FENCE) {
+		for (int i=0; i<22; i++) {
+			material->texcoords[i*8+0] = (cb_fence_texcoords[i*8+0] + material->offsets[0]) / 16.0f;
+			material->texcoords[i*8+1] = (cb_fence_texcoords[i*8+1] + material->offsets[1]) / 16.0f;
+			material->texcoords[i*8+2] = (cb_fence_texcoords[i*8+2] + material->offsets[0]) / 16.0f;
+			material->texcoords[i*8+3] = (cb_fence_texcoords[i*8+3] + material->offsets[1]) / 16.0f;
+			material->texcoords[i*8+4] = (cb_fence_texcoords[i*8+4] + material->offsets[0]) / 16.0f;
+			material->texcoords[i*8+5] = (cb_fence_texcoords[i*8+5] + material->offsets[1]) / 16.0f;
+			material->texcoords[i*8+6] = (cb_fence_texcoords[i*8+6] + material->offsets[0]) / 16.0f;
+			material->texcoords[i*8+7] = (cb_fence_texcoords[i*8+7] + material->offsets[1]) / 16.0f;
+		}
 	}
 			
 }
@@ -47,6 +58,7 @@ void cb_materials_bake() {
 	cb_materials[CB_MATERIAL_SPRUCE_SAPLING] = (struct cb_material){"spruce_sapling", CB_RENDER_TYPE_CROSS, false, {15, 3}, {}};
 	cb_materials[CB_MATERIAL_BIRCH_SAPLING] = (struct cb_material){"birch_sapling", CB_RENDER_TYPE_CROSS, false, {15, 4}, {}};
 	cb_materials[CB_MATERIAL_BEDROCK] = (struct cb_material){"bedrock", CB_RENDER_TYPE_CUBE, true, {1,1, 1,1, 1,1, 1,1, 1,1, 1,1}, {}};
+	cb_materials[CB_MATERIAL_FENCE] = (struct cb_material){"fence", CB_RENDER_TYPE_FENCE, false, {4,0}, {}};
 	
 	for (int i=0; i<4096; i++) {
 		cb_material_bake(cb_materials + i);

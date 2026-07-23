@@ -11,7 +11,7 @@
 
 struct cb_render_chunk {
 	GLuint list;
-	uint8_t blocks[4096];
+	uint16_t blocks[4096];
 };
 
 void cb_render_chunk_init(struct cb_render_chunk* chunk);

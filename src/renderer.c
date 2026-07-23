@@ -19,7 +19,7 @@ void cb_render_chunk_bake(struct cb_render_chunk* chunk, float* vertices, float*
 	for (int z=0; z<16; z++) {
 		for (int y=0; y<16; y++) {
 			for (int x=0; x<16; x++, i++) {
-				uint8_t block = chunk->blocks[i];
+				uint16_t block = chunk->blocks[i];
 				struct cb_material* material = cb_materials + block;
 				
 				if (material->render_type == CB_RENDER_TYPE_CUBE) {
@@ -106,6 +106,17 @@ void cb_render_chunk_bake(struct cb_render_chunk* chunk, float* vertices, float*
 						*(td++) = *(ts++);
 					}
 					count += 16;
+				} else if (material->render_type == CB_RENDER_TYPE_FENCE) {
+					const float* vs = cb_fence_vertices; 
+					const float* ts = material->texcoords;
+					for (int j=0; j<88; j++) {
+						*(vd++) = *(vs++) + x;
+						*(vd++) = *(vs++) + y;
+						*(vd++) = *(vs++) + z;
+						*(td++) = *(ts++);
+						*(td++) = *(ts++);
+					}
+					count += 88;
 				}
 			}
 		}
