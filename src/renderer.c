@@ -109,14 +109,14 @@ void cb_render_chunk_bake(struct cb_render_chunk* chunk, float* vertices, float*
 				} else if (material->render_type == CB_RENDER_TYPE_FENCE) {
 					const float* vs = cb_fence_vertices; 
 					const float* ts = material->texcoords;
-					for (int j=0; j<88; j++) {
+					for (int j=0; j<152; j++) {
 						*(vd++) = *(vs++) + x;
 						*(vd++) = *(vs++) + y;
 						*(vd++) = *(vs++) + z;
 						*(td++) = *(ts++);
 						*(td++) = *(ts++);
 					}
-					count += 88;
+					count += 152;
 				}
 			}
 		}

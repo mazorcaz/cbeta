@@ -26,7 +26,7 @@ void cb_material_bake(struct cb_material* material) {
 			material->texcoords[i*8+7] = (cb_cross_texcoords[i*8+7] + material->offsets[1]) / 16.0f;
 		}
 	} else if (material->render_type == CB_RENDER_TYPE_FENCE) {
-		for (int i=0; i<22; i++) {
+		for (int i=0; i<38; i++) {
 			material->texcoords[i*8+0] = (cb_fence_texcoords[i*8+0] + material->offsets[0]) / 16.0f;
 			material->texcoords[i*8+1] = (cb_fence_texcoords[i*8+1] + material->offsets[1]) / 16.0f;
 			material->texcoords[i*8+2] = (cb_fence_texcoords[i*8+2] + material->offsets[0]) / 16.0f;
