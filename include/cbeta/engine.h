@@ -5,17 +5,12 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <SDL2/SDL.h>
 
 struct cb_engine {
-	SDL_Window* window;
-	SDL_GLContext ctx;
+	struct cb_window* window;
 	
 	uint64_t lt;
 	bool running;
-	bool focused;
-	int width;
-	int height;
 	
 	float* vertices;
 	float* texcoords;

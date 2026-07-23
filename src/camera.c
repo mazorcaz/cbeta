@@ -3,8 +3,11 @@
 #include <cbeta/camera.h>
 
 #include <math.h>
-#include <SDL2/SDL.h>
 #include <GL/gl.h>
+#include <cbeta/engine.h>
+#include <cbeta/window.h>
+
+
 
 void cb_camera_init(struct cb_camera* camera) {
 	camera->x = 0.0f;
@@ -18,7 +21,11 @@ void cb_camera_init(struct cb_camera* camera) {
 	camera->sensitivity = 0.5f;
 }
 
-void cb_camera_handle_mouse(struct cb_camera* camera, float dx, float dy) {
+void cb_camera_free(struct cb_camera* camera) {
+	// do nothing
+}
+
+static void cb_camera_handle_mouse(struct cb_camera* camera, float dx, float dy) {
 	camera->pitch += dy * camera->sensitivity;
 	if (camera->pitch > 89.0f) camera->pitch = 89.0f;
 	if (camera->pitch < -89.0f) camera->pitch = -89.0f;
@@ -28,7 +35,7 @@ void cb_camera_handle_mouse(struct cb_camera* camera, float dx, float dy) {
 	if (camera->yaw < 0.0f) camera->yaw += 360.0f;
 }
 
-void cb_camera_handle_keys(struct cb_camera* camera, const uint8_t* keys, uint64_t dt) {
+static void cb_camera_handle_keys(struct cb_camera* camera, const uint8_t* keys, uint64_t dt) {
 	float rad_yaw = camera->yaw * (M_PI / 180.0f);
 
 	float rate = camera->speed * ( ((float)dt ) / 1000);
@@ -46,8 +53,16 @@ void cb_camera_handle_keys(struct cb_camera* camera, const uint8_t* keys, uint64
 	if (keys[SDL_SCANCODE_LSHIFT]) { camera->y -= rate; }
 }
 
-void cb_camera_free(struct cb_camera* camera) {
-	// do nothing
+void cb_camera_handle(struct cb_camera* camera, SDL_Event* event) {
+	if (event->type == SDL_MOUSEMOTION) {
+		if (cb_engine->window->focused) {
+			cb_camera_handle_mouse(cb_engine->camera, event->motion.xrel, event->motion.yrel);
+		}
+	}
+}
+
+void cb_camera_update(struct cb_camera* camera, uint64_t dt) {
+	cb_camera_handle_keys(camera, SDL_GetKeyboardState(NULL), dt);
 }
 
 void cb_camera_apply(struct cb_camera* camera) {	

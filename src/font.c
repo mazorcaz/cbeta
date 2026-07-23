@@ -12,6 +12,7 @@ uint8_t cb_font_w[256];
 
 void cb_font_bake() {
 	cb_font_x[' '] = 0; cb_font_y[' '] = 0; cb_font_w[' '] = 4;
+	
 	cb_font_x['a'] = 1; cb_font_y['a'] = 6; cb_font_w['a'] = 6;
 	cb_font_x['b'] = 2; cb_font_y['b'] = 6; cb_font_w['b'] = 6;
 	cb_font_x['c'] = 3; cb_font_y['c'] = 6; cb_font_w['c'] = 6;
@@ -39,6 +40,33 @@ void cb_font_bake() {
 	cb_font_x['y'] = 9; cb_font_y['y'] = 7; cb_font_w['y'] = 6;
 	cb_font_x['z'] = 10; cb_font_y['z'] = 7; cb_font_w['z'] = 6;
 	
+	cb_font_x['A'] = 1; cb_font_y['A'] = 4; cb_font_w['A'] = 6;
+	cb_font_x['B'] = 2; cb_font_y['B'] = 4; cb_font_w['B'] = 6;
+	cb_font_x['C'] = 3; cb_font_y['C'] = 4; cb_font_w['C'] = 6;
+	cb_font_x['D'] = 4; cb_font_y['D'] = 4; cb_font_w['D'] = 6;
+	cb_font_x['E'] = 5; cb_font_y['E'] = 4; cb_font_w['E'] = 6;
+	cb_font_x['F'] = 6; cb_font_y['F'] = 4; cb_font_w['F'] = 6;
+	cb_font_x['G'] = 7; cb_font_y['G'] = 4; cb_font_w['G'] = 6;
+	cb_font_x['H'] = 8; cb_font_y['H'] = 4; cb_font_w['H'] = 6;
+	cb_font_x['I'] = 9; cb_font_y['I'] = 4; cb_font_w['I'] = 4;
+	cb_font_x['J'] = 10; cb_font_y['J'] = 4; cb_font_w['J'] = 6;
+	cb_font_x['K'] = 11; cb_font_y['K'] = 4; cb_font_w['K'] = 6;
+	cb_font_x['L'] = 12; cb_font_y['L'] = 4; cb_font_w['L'] = 6;
+	cb_font_x['M'] = 13; cb_font_y['M'] = 4; cb_font_w['M'] = 6;
+	cb_font_x['N'] = 14; cb_font_y['N'] = 4; cb_font_w['N'] = 6;
+	cb_font_x['O'] = 15; cb_font_y['O'] = 4; cb_font_w['O'] = 6;
+	cb_font_x['P'] = 0; cb_font_y['P'] = 5; cb_font_w['P'] = 6;
+	cb_font_x['Q'] = 1; cb_font_y['Q'] = 5; cb_font_w['Q'] = 6;
+	cb_font_x['R'] = 2; cb_font_y['R'] = 5; cb_font_w['R'] = 6;
+	cb_font_x['S'] = 3; cb_font_y['S'] = 5; cb_font_w['S'] = 6;
+	cb_font_x['T'] = 4; cb_font_y['T'] = 5; cb_font_w['T'] = 6;
+	cb_font_x['U'] = 5; cb_font_y['U'] = 5; cb_font_w['U'] = 6;
+	cb_font_x['V'] = 6; cb_font_y['V'] = 5; cb_font_w['V'] = 6;
+	cb_font_x['W'] = 7; cb_font_y['W'] = 7; cb_font_w['W'] = 6;
+	cb_font_x['X'] = 8; cb_font_y['X'] = 5; cb_font_w['X'] = 6;
+	cb_font_x['Y'] = 9; cb_font_y['Y'] = 5; cb_font_w['Y'] = 6;
+	cb_font_x['Z'] = 10; cb_font_y['Z'] = 5; cb_font_w['Z'] = 6;
+	
 	cb_font_x['0'] = 0; cb_font_y['0'] = 3; cb_font_w['0'] = 6;
 	cb_font_x['1'] = 1; cb_font_y['1'] = 3; cb_font_w['1'] = 6;
 	cb_font_x['2'] = 2; cb_font_y['2'] = 3; cb_font_w['2'] = 6;
@@ -49,6 +77,13 @@ void cb_font_bake() {
 	cb_font_x['7'] = 7; cb_font_y['7'] = 3; cb_font_w['7'] = 6;
 	cb_font_x['8'] = 8; cb_font_y['8'] = 3; cb_font_w['8'] = 6;
 	cb_font_x['9'] = 9; cb_font_y['9'] = 3; cb_font_w['9'] = 6;
+	
+	cb_font_x[':'] = 10; cb_font_y[':'] = 3; cb_font_w[':'] = 2;
+	cb_font_x[';'] = 11; cb_font_y[';'] = 3; cb_font_w[';'] = 2;
+	cb_font_x['<'] = 12; cb_font_y['<'] = 3; cb_font_w['<'] = 5;
+	cb_font_x['='] = 13; cb_font_y['='] = 3; cb_font_w['='] = 6;
+	cb_font_x['>'] = 14; cb_font_y['>'] = 3; cb_font_w['>'] = 5;
+	cb_font_x['?'] = 15; cb_font_y['?'] = 3; cb_font_w['?'] = 6;
 }
 
 int cb_draw_char(char c, int x, int y) {

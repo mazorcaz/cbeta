@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <GL/gl.h>
+#include <cbeta/window.h>
 #include <cbeta/camera.h>
 #include <cbeta/renderer.h>
 #include <cbeta/resource.h>
@@ -22,44 +23,12 @@ bool cb_engine_init() {
 		return false;
 	}
 	
-	////////////////////
-	// INITIALIZATION //
-	////////////////////
-	
-	// init sdl
-	SDL_SetHint(SDL_HINT_VIDEODRIVER, "wayland,x11");
-	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-		printf("cb_engine_init: failed to init sdl: %s\n", SDL_GetError());
+	// window
+	cb_engine->window = malloc(sizeof(struct cb_window));
+	if (!cb_engine->window || !cb_window_init(cb_engine->window)) {
+		printf("cb_engine_init: failed to init window\n");
 		return false;
 	}
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 1);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-	
-	// create window
-	cb_engine->window = SDL_CreateWindow(
-		"cbeta",
-		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-		800, 600,
-		SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
-	);
-	if (!cb_engine->window) {
-		printf("cb_engine_init: failed to open window: %s\n", SDL_GetError());
-		return false;
-	}
-	
-	// create opengl ctx
-	cb_engine->ctx = SDL_GL_CreateContext(cb_engine->window);
-	if (!cb_engine->ctx) {
-		printf("cb_engine_init: failed to get opengl context: %s\n", SDL_GetError());
-		return false;
-	}
-	SDL_GL_SetSwapInterval(1);
-	
-	////////////////////
-	// CREATE OBJECTS //
-	////////////////////
 	
 	// scratch
 	cb_engine->vertices = malloc(4096 * 64 * 4 * 3 * sizeof(float));
@@ -133,10 +102,6 @@ bool cb_engine_init() {
 	cb_engine->chunk->blocks[0] = CB_MATERIAL_OAK_SAPLING;
 	cb_render_chunk_bake(cb_engine->chunk);
 	
-	/////////////////
-	// LOG SUCCESS //
-	/////////////////
-	
 	printf("cbeta initialized successfully\n");
 	printf("Video Driver: %s\n", SDL_GetCurrentVideoDriver());
 	printf("GL Renderer: %s\n", glGetString(GL_RENDERER));
@@ -147,12 +112,7 @@ bool cb_engine_init() {
 void cb_engine_run() {
 	
 	cb_engine->lt = SDL_GetTicks64();
-	cb_engine->focused = false;
 	cb_engine->running = true;
-	
-	cb_engine->width = 800;
-	cb_engine->height = 600;
-	cb_set_perspective(100.0f, (float)cb_engine->width / (float)cb_engine->height, 0.1f, 100.0f);
 	
 	SDL_Event event;
 	while (cb_engine->running) {
@@ -165,35 +125,16 @@ void cb_engine_run() {
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_QUIT) {
 				cb_engine->running = false;
-			
-			} else if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED) {
-				cb_engine->width = event.window.data1;
-				cb_engine->height = event.window.data2;
-				glViewport(0, 0, cb_engine->width, cb_engine->height);
-				cb_set_perspective(100.0f, (float)cb_engine->width / (float)cb_engine->height, 0.1f, 100.0f);
-				
-			} else if (event.type == SDL_MOUSEMOTION) {
-				if (cb_engine->focused) 
-					cb_camera_handle_mouse(cb_engine->camera, event.motion.xrel, event.motion.yrel);
-					
-			} else if (event.type == SDL_KEYDOWN) {
-				if (event.key.keysym.sym == SDLK_ESCAPE) {
-					SDL_SetRelativeMouseMode(SDL_FALSE);
-					cb_engine->focused = false;
-				}
-				
-			} else if (event.type == SDL_MOUSEBUTTONDOWN) {
-				if (event.button.button == SDL_BUTTON_LEFT) {
-					SDL_SetRelativeMouseMode(SDL_TRUE);
-					cb_engine->focused = true;
-				}
+			} else {
+				cb_window_handle(cb_engine->window, &event);
+				cb_camera_handle(cb_engine->camera, &event);
 			}
 		}
 
-		const uint8_t* state = SDL_GetKeyboardState(NULL);
+		// update
+		cb_camera_update(cb_engine->camera, dt);
 
-		cb_camera_handle_keys(cb_engine->camera, state, dt);
-
+		// render
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		cb_camera_apply(cb_engine->camera);
@@ -216,13 +157,13 @@ void cb_engine_run() {
 		glPushMatrix();
 		
 		glLoadIdentity();
-		glOrtho(0.0, cb_engine->width, cb_engine->height, 0.0, -1.0, 1.0);
+		glOrtho(0.0, cb_engine->window->width, cb_engine->window->height, 0.0, -1.0, 1.0);
 		
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 		
 		char str[1024];
-		sprintf(str, "fps is %i", (int)(1000.0f / (float)dt));
+		sprintf(str, "FPS: %i", (int)(1000.0f / (float)dt));
 		
 		cb_draw_string(str, 0, 0);
 		
@@ -230,7 +171,7 @@ void cb_engine_run() {
 		glPopMatrix();
 		
 
-		SDL_GL_SwapWindow(cb_engine->window);
+		SDL_GL_SwapWindow(cb_engine->window->window);
 	}
 }
 
@@ -243,9 +184,7 @@ void cb_engine_free() {
 		cb_resource_free(cb_engine->test_texture);
 		cb_camera_free(cb_engine->camera);
 		
-		SDL_GL_DeleteContext(cb_engine->ctx);
-		SDL_DestroyWindow(cb_engine->window);
-		SDL_Quit();
+		cb_window_free(cb_engine->window);
 		
 		free(cb_engine);
 	}
