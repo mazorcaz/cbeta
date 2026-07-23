@@ -46,6 +46,7 @@ void cb_materials_bake() {
 	cb_materials[CB_MATERIAL_OAK_SAPLING] = (struct cb_material){"oak_sapling", CB_RENDER_TYPE_CROSS, false, {15, 0}, {}};
 	cb_materials[CB_MATERIAL_SPRUCE_SAPLING] = (struct cb_material){"spruce_sapling", CB_RENDER_TYPE_CROSS, false, {15, 3}, {}};
 	cb_materials[CB_MATERIAL_BIRCH_SAPLING] = (struct cb_material){"birch_sapling", CB_RENDER_TYPE_CROSS, false, {15, 4}, {}};
+	cb_materials[CB_MATERIAL_BEDROCK] = (struct cb_material){"bedrock", CB_RENDER_TYPE_CUBE, true, {1,1, 1,1, 1,1, 1,1, 1,1, 1,1}, {}};
 	
 	for (int i=0; i<4096; i++) {
 		cb_material_bake(cb_materials + i);

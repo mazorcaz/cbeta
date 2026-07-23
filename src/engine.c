@@ -83,8 +83,10 @@ bool cb_engine_init(struct cb_engine* engine) {
 					engine->chunk.blocks[i] = CB_MATERIAL_COBBLESTONE;
 				else if (y > 9)
 					engine->chunk.blocks[i] = CB_MATERIAL_DIRT;
-				else
+				else if (y > 0)
 					engine->chunk.blocks[i] = CB_MATERIAL_STONE;
+				else
+					engine->chunk.blocks[i] = CB_MATERIAL_BEDROCK;
 			}
 		}
 	}

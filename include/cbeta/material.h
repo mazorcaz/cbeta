@@ -17,6 +17,7 @@
 #define CB_MATERIAL_OAK_SAPLING ((6<<4)+0)
 #define CB_MATERIAL_SPRUCE_SAPLING ((6<<4)+1)
 #define CB_MATERIAL_BIRCH_SAPLING ((6<<4)+2)
+#define CB_MATERIAL_BEDROCK ((7<<4)+0)
 
 struct cb_material {
 	const char* name;
