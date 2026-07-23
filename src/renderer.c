@@ -98,8 +98,6 @@ void cb_render_chunk_bake(struct cb_render_chunk* chunk, float* vertices, float*
 			}
 		}
 	}
-	
-	glNewList(chunk->list, GL_COMPILE);
 
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -108,12 +106,14 @@ void cb_render_chunk_bake(struct cb_render_chunk* chunk, float* vertices, float*
 	glVertexPointer(3, GL_FLOAT, 0, vertices);
 	glTexCoordPointer(2, GL_FLOAT, 0, texcoords);
 	
+	glNewList(chunk->list, GL_COMPILE);
+	
 	glDrawArrays(GL_QUADS, 0, count);
+	
+	glEndList();
 	
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	
-	glEndList();
 }
 
 void cb_render_chunk_render(struct cb_render_chunk* chunk) {
