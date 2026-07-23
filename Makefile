@@ -20,14 +20,13 @@ clean:
 	rm -rf bin/
 	@echo
 
-bin/resources: resources
-	@echo "Building resources"
+bin/resources/%: resources/%
+	@echo "Building resource $@"
 	@mkdir -p $(dir $@)
-	@rm -rf $@
-	cp -r resources $@
+	cp -r $< $@
 	@echo
 
-bin/cbeta: $(OBJS) bin/resources
+bin/cbeta: $(OBJS) $(patsubst %,bin/%,$(shell find resources/))
 	@echo "Building $@"
 	@mkdir -p $(dir $@)
 	$(CC) $(OBJS) -o $@ $(LDLIBS)
