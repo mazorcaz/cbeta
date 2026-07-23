@@ -60,13 +60,7 @@ bool cb_engine_init(struct cb_engine* engine) {
 	}
 	
 	// materials
-	engine->materials[0] = (struct cb_material){"air", {0,0, 0,0, 0,0, 0,0, 0,0, 0,0}, {}};
-	engine->materials[1] = (struct cb_material){"stone", {1,0, 1,0, 1,0, 1,0, 1,0, 1,0}, {}};
-	engine->materials[2] = (struct cb_material){"dirt", {2,0, 2,0, 2,0, 2,0, 2,0, 2,0}, {}};
-	engine->materials[3] = (struct cb_material){"grass", {3,0, 3,0, 0,0, 2,0, 3,0, 3,0}, {}};
-	for (int i=0; i<256; i++) {
-		cb_material_bake(&engine->materials[i]);
-	}
+	cb_materials_bake();
 	
 	// success
 	printf("cbeta initialized successfully\n");
@@ -96,7 +90,7 @@ void cb_engine_run(struct cb_engine* engine) {
 		}
 	}
 	
-	cb_render_chunk_bake(&engine->chunk, engine->vertices, engine->texcoords, engine->materials, engine->terrain.id);
+	cb_render_chunk_bake(&engine->chunk, engine->vertices, engine->texcoords, engine->terrain.id);
 	
 	SDL_Event event;
 	while (engine->running) {

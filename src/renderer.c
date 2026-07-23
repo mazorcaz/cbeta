@@ -6,7 +6,7 @@ void cb_render_chunk_init(struct cb_render_chunk* chunk) {
 	chunk->list = 0;
 }
 
-void cb_render_chunk_bake(struct cb_render_chunk* chunk, float* vertices, float* texcoords, struct cb_material* materials, GLuint terrain) {
+void cb_render_chunk_bake(struct cb_render_chunk* chunk, float* vertices, float* texcoords, GLuint terrain) {
 	if (chunk->list) glDeleteLists(chunk->list, 1);
 	chunk->list = glGenLists(1);
 	
@@ -24,7 +24,7 @@ void cb_render_chunk_bake(struct cb_render_chunk* chunk, float* vertices, float*
 				if (block) {
 					if (z == 15 || chunk->blocks[i + 256] == 0) {
 						const float* vs = cb_cube_vertices + 0; 
-						const float* ts = materials[block].texcoords + 0;
+						const float* ts = cb_materials[block].texcoords + 0;
 						for (int j=0; j<4; j++) {
 							*(vd++) = *(vs++) + x;
 							*(vd++) = *(vs++) + y;
@@ -36,7 +36,7 @@ void cb_render_chunk_bake(struct cb_render_chunk* chunk, float* vertices, float*
 					}
 					if (z == 0 || chunk->blocks[i - 256] == 0) {
 						const float* vs = cb_cube_vertices + 12; 
-						const float* ts = materials[block].texcoords + 8;
+						const float* ts = cb_materials[block].texcoords + 8;
 						for (int j=0; j<4; j++) {
 							*(vd++) = *(vs++) + x;
 							*(vd++) = *(vs++) + y;
@@ -48,7 +48,7 @@ void cb_render_chunk_bake(struct cb_render_chunk* chunk, float* vertices, float*
 					}
 					if (y == 15 || chunk->blocks[i + 16] == 0) {
 						const float* vs = cb_cube_vertices + 24; 
-						const float* ts = materials[block].texcoords + 16;
+						const float* ts = cb_materials[block].texcoords + 16;
 						for (int j=0; j<4; j++) {
 							*(vd++) = *(vs++) + x;
 							*(vd++) = *(vs++) + y;
@@ -60,7 +60,7 @@ void cb_render_chunk_bake(struct cb_render_chunk* chunk, float* vertices, float*
 					}
 					if (y == 0 || chunk->blocks[i - 16] == 0) {
 						const float* vs = cb_cube_vertices + 36; 
-						const float* ts = materials[block].texcoords + 24;
+						const float* ts = cb_materials[block].texcoords + 24;
 						for (int j=0; j<4; j++) {
 							*(vd++) = *(vs++) + x;
 							*(vd++) = *(vs++) + y;
@@ -72,7 +72,7 @@ void cb_render_chunk_bake(struct cb_render_chunk* chunk, float* vertices, float*
 					}
 					if (x == 15 || chunk->blocks[i + 1] == 0) {
 						const float* vs = cb_cube_vertices + 48; 
-						const float* ts = materials[block].texcoords + 32;
+						const float* ts = cb_materials[block].texcoords + 32;
 						for (int j=0; j<4; j++) {
 							*(vd++) = *(vs++) + x;
 							*(vd++) = *(vs++) + y;
@@ -84,7 +84,7 @@ void cb_render_chunk_bake(struct cb_render_chunk* chunk, float* vertices, float*
 					}
 					if (x == 0 || chunk->blocks[i - 1] == 0) {
 						const float* vs = cb_cube_vertices + 60;
-						const float* ts = materials[block].texcoords + 40;
+						const float* ts = cb_materials[block].texcoords + 40;
 						for (int j=0; j<4; j++) {
 							*(vd++) = *(vs++) + x;
 							*(vd++) = *(vs++) + y;
@@ -124,114 +124,3 @@ void cb_render_chunk_free(struct cb_render_chunk* chunk) {
 	if (chunk->list) glDeleteLists(chunk->list, 1);
 	chunk->list = 0;
 }
-
-const float cb_cube_vertices[] = {
-	// front
-	 1.0f,  1.0f,  1.0f,
-	-0.0f,  1.0f,  1.0f,
-	-0.0f, -0.0f,  1.0f,
-	 1.0f, -0.0f,  1.0f,
-	
-	// back
-	-0.0f, -0.0f, -0.0f,
-	-0.0f,  1.0f, -0.0f,
-	 1.0f,  1.0f, -0.0f,
-	 1.0f, -0.0f, -0.0f,
-
-	// top
-	 1.0f,  1.0f,  1.0f,
-	 1.0f,  1.0f, -0.0f,
-	-0.0f,  1.0f, -0.0f,
-	-0.0f,  1.0f,  1.0f,
-
-	//bottom
-	-0.0f, -0.0f, -0.0f,
-	 1.0f, -0.0f, -0.0f,
-	 1.0f, -0.0f,  1.0f,
-	-0.0f, -0.0f,  1.0f,
-
-	// right
-	 1.0f,  1.0f,  1.0f,
-	 1.0f, -0.0f,  1.0f,
-	 1.0f, -0.0f, -0.0f,
-	 1.0f,  1.0f, -0.0f,
-	 
-	// left
-	-0.0f, -0.0f, -0.0f,
-	-0.0f, -0.0f,  1.0f,
-	-0.0f,  1.0f,  1.0f,
-	-0.0f,  1.0f, -0.0f
-};
-
-// colors
-const float cb_cube_colors[] = {
-	1.0f, 0.0f, 0.0f,
-	1.0f, 0.0f, 0.0f,
-	1.0f, 0.0f, 0.0f,
-	1.0f, 0.0f, 0.0f,
-
-	0.0f, 1.0f, 0.0f,
-	0.0f, 1.0f, 0.0f,
-	0.0f, 1.0f, 0.0f,
-	0.0f, 1.0f, 0.0f,
-
-	0.0f, 0.0f, 1.0f,
-	0.0f, 0.0f, 1.0f,
-	0.0f, 0.0f, 1.0f,
-	0.0f, 0.0f, 1.0f,
-
-	0.0f, 1.0f, 1.0f,
-	0.0f, 1.0f, 1.0f,
-	0.0f, 1.0f, 1.0f,
-	0.0f, 1.0f, 1.0f,
-
-	1.0f, 1.0f, 0.0f,
-	1.0f, 1.0f, 0.0f,
-	1.0f, 1.0f, 0.0f,
-	1.0f, 1.0f, 0.0f,
-
-	1.0f, 0.0f, 1.0f,
-	1.0f, 0.0f, 1.0f,
-	1.0f, 0.0f, 1.0f,
-	1.0f, 0.0f, 1.0f
-};
-
-// texcoords
-
-const float cb_cube_texcoords[] = {
-	// front
-	1.0f, 0.0f,
-	0.0f, 0.0f,
-	0.0f, 1.0f,
-	1.0f, 1.0f,
-	
-	// back
-	1.0f, 1.0f,
-	1.0f, 0.0f,
-	0.0f, 0.0f,
-	0.0f, 1.0f,
-	
-	// top
-	1.0f, 1.0f,
-	1.0f, 0.0f,
-	0.0f, 0.0f,
-	0.0f, 1.0f,
-	
-	// bottom
-	0.0f, 0.0f,
-	1.0f, 0.0f,
-	1.0f, 1.0f,
-	0.0f, 1.0f,
-	
-	// right
-	0.0f, 0.0f,
-	0.0f, 1.0f,
-	1.0f, 1.0f,
-	1.0f, 0.0f,
-	
-	// left
-	0.0f, 1.0f,
-	1.0f, 1.0f,
-	1.0f, 0.0f,
-	0.0f, 0.0f
-};
