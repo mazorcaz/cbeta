@@ -2,6 +2,9 @@
 
 #include <cbeta/material.h>
 
+#include <stdio.h>
+#include <cbeta/geometry.h>
+
 void cb_material_bake(struct cb_material* material) {
 	if (material->render_type == CB_RENDER_TYPE_CUBE) {
 		for (int i=0; i<6; i++) {

@@ -2,7 +2,25 @@
 
 #include <cbeta/engine.h>
 
-bool cb_engine_init(struct cb_engine* engine) {
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <GL/gl.h>
+#include <cbeta/camera.h>
+#include <cbeta/renderer.h>
+#include <cbeta/resource.h>
+#include <cbeta/material.h>
+#include <cbeta/font.h>
+
+struct cb_engine* cb_engine;
+
+bool cb_engine_init() {
+	
+	cb_engine = malloc(sizeof(struct cb_engine));
+	if (!cb_engine) {
+		printf("cb_engine_init: malloc failed");
+		return false;
+	}
 	
 	////////////////////
 	// INITIALIZATION //
@@ -20,20 +38,20 @@ bool cb_engine_init(struct cb_engine* engine) {
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	
 	// create window
-	engine->window = SDL_CreateWindow(
+	cb_engine->window = SDL_CreateWindow(
 		"cbeta",
 		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 		800, 600,
 		SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
 	);
-	if (!engine->window) {
+	if (!cb_engine->window) {
 		printf("cb_engine_init: failed to open window: %s\n", SDL_GetError());
 		return false;
 	}
 	
 	// create opengl ctx
-	engine->ctx = SDL_GL_CreateContext(engine->window);
-	if (!engine->ctx) {
+	cb_engine->ctx = SDL_GL_CreateContext(cb_engine->window);
+	if (!cb_engine->ctx) {
 		printf("cb_engine_init: failed to get opengl context: %s\n", SDL_GetError());
 		return false;
 	}
@@ -44,60 +62,76 @@ bool cb_engine_init(struct cb_engine* engine) {
 	////////////////////
 	
 	// scratch
-	engine->vertices = malloc(4096 * 64 * 4 * 3 * sizeof(float));
-	engine->texcoords = malloc(4096 * 64 * 4 * 2 * sizeof(float));
-	if (!engine->vertices || !engine->texcoords) {
+	cb_engine->vertices = malloc(4096 * 64 * 4 * 3 * sizeof(float));
+	cb_engine->texcoords = malloc(4096 * 64 * 4 * 2 * sizeof(float));
+	if (!cb_engine->vertices || !cb_engine->texcoords) {
 		printf("cb_engine_init: malloc failed\n");
 		return false;
 	}
 	
-	// materials
+	// bake constants
 	cb_materials_bake();
-	
-	// font
 	cb_font_bake();
 	
-	// camera
-	cb_camera_init(&engine->camera);
-	
 	// textures
-	if (!cb_resource_load(&engine->test_texture, "resources/test.png")) {
+	cb_engine->test_texture = malloc(sizeof(struct cb_resource));
+	if (!cb_engine->test_texture || !cb_resource_load(cb_engine->test_texture, "resources/test.png")) {
 		printf("cb_engine_init: failed to load texture\n");
 		return false;
 	}
-	if (!cb_resource_load(&engine->terrain, "resources/terrain.png")) {
+	cb_engine->terrain = malloc(sizeof(struct cb_resource));
+	if (!cb_engine->terrain || !cb_resource_load(cb_engine->terrain, "resources/terrain.png")) {
 		printf("cb_engine_init: failed to load texture\n");
 		return false;
 	}
-	if (!cb_resource_load(&engine->font, "resources/font.png")) {
+	cb_engine->font = malloc(sizeof(struct cb_resource));
+	if (!cb_engine->font || !cb_resource_load(cb_engine->font, "resources/font.png")) {
 		printf("cb_engine_init: failed to load texture\n");
 		return false;
 	}
+	
+	// camera
+	cb_engine->camera = malloc(sizeof(struct cb_camera));
+	if (!cb_engine->camera) {
+		printf("cb_engine_init: malloc failed\n");
+		return false;
+	}
+	cb_camera_init(cb_engine->camera);
 	
 	// chunk
-	cb_render_chunk_init(&engine->chunk);int i=0;
+	cb_engine->chunk = malloc(sizeof(struct cb_render_chunk));
+	if (!cb_engine->chunk) {
+		printf("cb_engine_init: malloc failed\n");
+		return false;
+	}
+	cb_render_chunk_init(cb_engine->chunk);
+	int i=0;
 	for (int z=0; z<16; z++) {
 		for (int y=0; y<16; y++) {
 			for (int x=0; x<16; x++, i++) {
+				uint16_t block;
+				
 				if (y == 15) {
-					if (i % 5 == 0) engine->chunk.blocks[i] = CB_MATERIAL_AIR;
-					else engine->chunk.blocks[i] = CB_MATERIAL_FENCE;
+					if (i % 5 == 0) block = CB_MATERIAL_AIR;
+					else block = CB_MATERIAL_FENCE;
 				}
 				else if (y == 14)
-					engine->chunk.blocks[i] = CB_MATERIAL_GRASS;
+					block = CB_MATERIAL_GRASS;
 				else if (y == 13)
-					engine->chunk.blocks[i] = CB_MATERIAL_COBBLESTONE;
+					block = CB_MATERIAL_COBBLESTONE;
 				else if (y > 9)
-					engine->chunk.blocks[i] = CB_MATERIAL_DIRT;
+					block = CB_MATERIAL_DIRT;
 				else if (y > 0)
-					engine->chunk.blocks[i] = CB_MATERIAL_STONE;
+					block = CB_MATERIAL_STONE;
 				else
-					engine->chunk.blocks[i] = CB_MATERIAL_BEDROCK;
+					block = CB_MATERIAL_BEDROCK;
+					
+				cb_engine->chunk->blocks[i] = block;
 			}
 		}
 	}
-	engine->chunk.blocks[0] = CB_MATERIAL_OAK_SAPLING;
-	cb_render_chunk_bake(&engine->chunk, engine->vertices, engine->texcoords, engine->terrain.id);
+	cb_engine->chunk->blocks[0] = CB_MATERIAL_OAK_SAPLING;
+	cb_render_chunk_bake(cb_engine->chunk);
 	
 	/////////////////
 	// LOG SUCCESS //
@@ -110,59 +144,59 @@ bool cb_engine_init(struct cb_engine* engine) {
 	return true;
 }
 
-void cb_engine_run(struct cb_engine* engine) {
+void cb_engine_run() {
 	
-	engine->lt = SDL_GetTicks64();
-	engine->focused = false;
-	engine->running = true;
+	cb_engine->lt = SDL_GetTicks64();
+	cb_engine->focused = false;
+	cb_engine->running = true;
 	
-	engine->width = 800;
-	engine->height = 600;
-	cb_set_perspective(100.0f, (float)engine->width / (float)engine->height, 0.1f, 100.0f);
+	cb_engine->width = 800;
+	cb_engine->height = 600;
+	cb_set_perspective(100.0f, (float)cb_engine->width / (float)cb_engine->height, 0.1f, 100.0f);
 	
 	SDL_Event event;
-	while (engine->running) {
+	while (cb_engine->running) {
 		// time
 		uint64_t ct = SDL_GetTicks64();
-		uint64_t dt = ct - engine->lt;
-		engine->lt = ct;
+		uint64_t dt = ct - cb_engine->lt;
+		cb_engine->lt = ct;
 
 		// events
 		while (SDL_PollEvent(&event)) {
-			if (event.type == SDL_QUIT)
-				engine->running = false;
-				
-			else if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED) {
-				engine->width = event.window.data1;
-				engine->height = event.window.data2;
-				glViewport(0, 0, engine->width, engine->height);
-				cb_set_perspective(100.0f, (float)engine->width / (float)engine->height, 0.1f, 100.0f);
+			if (event.type == SDL_QUIT) {
+				cb_engine->running = false;
+			
+			} else if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED) {
+				cb_engine->width = event.window.data1;
+				cb_engine->height = event.window.data2;
+				glViewport(0, 0, cb_engine->width, cb_engine->height);
+				cb_set_perspective(100.0f, (float)cb_engine->width / (float)cb_engine->height, 0.1f, 100.0f);
 				
 			} else if (event.type == SDL_MOUSEMOTION) {
-				if (engine->focused) 
-					cb_camera_handle_mouse(&engine->camera, event.motion.xrel, event.motion.yrel);
+				if (cb_engine->focused) 
+					cb_camera_handle_mouse(cb_engine->camera, event.motion.xrel, event.motion.yrel);
 					
 			} else if (event.type == SDL_KEYDOWN) {
 				if (event.key.keysym.sym == SDLK_ESCAPE) {
 					SDL_SetRelativeMouseMode(SDL_FALSE);
-					engine->focused = false;
+					cb_engine->focused = false;
 				}
 				
 			} else if (event.type == SDL_MOUSEBUTTONDOWN) {
 				if (event.button.button == SDL_BUTTON_LEFT) {
 					SDL_SetRelativeMouseMode(SDL_TRUE);
-					engine->focused = true;
+					cb_engine->focused = true;
 				}
 			}
 		}
 
 		const uint8_t* state = SDL_GetKeyboardState(NULL);
 
-		cb_camera_handle_keys(&engine->camera, state, dt);
+		cb_camera_handle_keys(cb_engine->camera, state, dt);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
-		cb_camera_apply(&engine->camera);
+		cb_camera_apply(cb_engine->camera);
 				
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
@@ -172,7 +206,7 @@ void cb_engine_run(struct cb_engine* engine) {
 		
 		glPushMatrix();
 		glTranslatef(-8.0f, -8.0f, -20.0f);
-		cb_render_chunk_render(&engine->chunk);
+		cb_render_chunk_render(cb_engine->chunk);
 		glPopMatrix();
 		
 		glDisable(GL_DEPTH_TEST);
@@ -182,7 +216,7 @@ void cb_engine_run(struct cb_engine* engine) {
 		glPushMatrix();
 		
 		glLoadIdentity();
-		glOrtho(0.0, engine->width, engine->height, 0.0, -1.0, 1.0);
+		glOrtho(0.0, cb_engine->width, cb_engine->height, 0.0, -1.0, 1.0);
 		
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
@@ -190,22 +224,29 @@ void cb_engine_run(struct cb_engine* engine) {
 		char str[1024];
 		sprintf(str, "fps is %i", (int)(1000.0f / (float)dt));
 		
-		cb_draw_string(str, 0, 0, engine->font.id);
+		cb_draw_string(str, 0, 0);
 		
 		glMatrixMode(GL_PROJECTION);
 		glPopMatrix();
 		
 
-		SDL_GL_SwapWindow(engine->window);
+		SDL_GL_SwapWindow(cb_engine->window);
 	}
 }
 
-void cb_engine_free(struct cb_engine* engine) {
-	cb_render_chunk_free(&engine->chunk);
-	cb_resource_free(&engine->test_texture);
-	cb_camera_free(&engine->camera);
-	
-	SDL_GL_DeleteContext(&engine->ctx);
-	SDL_DestroyWindow(engine->window);
-	SDL_Quit();
+void cb_engine_free() {
+	if (cb_engine) {
+		free(cb_engine->vertices);
+		free(cb_engine->texcoords);
+		
+		cb_render_chunk_free(cb_engine->chunk);
+		cb_resource_free(cb_engine->test_texture);
+		cb_camera_free(cb_engine->camera);
+		
+		SDL_GL_DeleteContext(cb_engine->ctx);
+		SDL_DestroyWindow(cb_engine->window);
+		SDL_Quit();
+		
+		free(cb_engine);
+	}
 }

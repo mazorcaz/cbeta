@@ -2,18 +2,23 @@
 
 #include <cbeta/renderer.h>
 
+#include <cbeta/engine.h>
+#include <cbeta/resource.h>
+#include <cbeta/material.h>
+#include <cbeta/geometry.h>
+
 void cb_render_chunk_init(struct cb_render_chunk* chunk) {
 	chunk->list = 0;
 }
 
-void cb_render_chunk_bake(struct cb_render_chunk* chunk, float* vertices, float* texcoords, GLuint terrain) {
+void cb_render_chunk_bake(struct cb_render_chunk* chunk) {
 	if (chunk->list) glDeleteLists(chunk->list, 1);
 	chunk->list = glGenLists(1);
 	
 	int count = 0;
 	
-	float* vd = vertices;
-	float* td = texcoords;
+	float* vd = cb_engine->vertices;
+	float* td = cb_engine->texcoords;
 	
 	int i=0;
 	for (int z=0; z<16; z++) {
@@ -176,10 +181,10 @@ void cb_render_chunk_bake(struct cb_render_chunk* chunk, float* vertices, float*
 	
 	glNewList(chunk->list, GL_COMPILE);
 	
-	glBindTexture(GL_TEXTURE_2D, terrain);
+	glBindTexture(GL_TEXTURE_2D, cb_engine->terrain->id);
 	
-	glVertexPointer(3, GL_FLOAT, 0, vertices);
-	glTexCoordPointer(2, GL_FLOAT, 0, texcoords);
+	glVertexPointer(3, GL_FLOAT, 0, cb_engine->vertices);
+	glTexCoordPointer(2, GL_FLOAT, 0, cb_engine->texcoords);
 	
 	glDrawArrays(GL_QUADS, 0, count);
 	

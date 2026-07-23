@@ -3,10 +3,8 @@
 #ifndef CBETA_MATERIAL_H
 #define CBETA_MATERIAL_H
 
-#include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <cbeta/geometry.h>
 
 #define CB_MATERIAL_AIR ((0<<4)+0)
 #define CB_MATERIAL_STONE ((1<<4)+0)

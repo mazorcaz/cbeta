@@ -2,6 +2,9 @@
 
 #include <cbeta/resource.h>
 
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+
 bool cb_resource_load(struct cb_resource* resource, const char* file) {
 	char* base_path = SDL_GetBasePath();
 	if (!base_path) {

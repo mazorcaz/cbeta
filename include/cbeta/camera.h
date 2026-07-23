@@ -4,9 +4,6 @@
 #define CBETA_CAMERA_H
 
 #include <stdint.h>
-#include <math.h>
-#include <SDL2/SDL.h>
-#include <GL/gl.h>
 
 struct cb_camera {
 	float x, y, z;

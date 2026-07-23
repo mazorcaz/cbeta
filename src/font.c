@@ -2,6 +2,10 @@
 
 #include <cbeta/font.h>
 
+#include <GL/gl.h>
+#include <cbeta/resource.h>
+#include <cbeta/engine.h>
+
 uint8_t cb_font_x[256];
 uint8_t cb_font_y[256];
 uint8_t cb_font_w[256];
@@ -47,7 +51,7 @@ void cb_font_bake() {
 	cb_font_x['9'] = 9; cb_font_y['9'] = 3; cb_font_w['9'] = 6;
 }
 
-int cb_draw_char(char c, int x, int y, GLuint font) {
+int cb_draw_char(char c, int x, int y) {
 	if (c >= 32 && c <= 126) {
 		float width = cb_font_w[c];
 		
@@ -56,7 +60,7 @@ int cb_draw_char(char c, int x, int y, GLuint font) {
 		float top = (float)cb_font_y[c] / 16.0f;
 		float bottom = top + 1/16.0f;
 		
-		glBindTexture(GL_TEXTURE_2D, font);
+		glBindTexture(GL_TEXTURE_2D, cb_engine->font->id);
 		glBegin(GL_QUADS);
 		
 		glColor3f(1.0f, 1.0f, 1.0f);
@@ -81,10 +85,10 @@ int cb_draw_char(char c, int x, int y, GLuint font) {
 	return 0;
 }
 
-int cb_draw_string(const char* s, int x, int y, GLuint font) {
+int cb_draw_string(const char* s, int x, int y) {
 	int w = 0;
 	while (*s) {
-		w += cb_draw_char(*s++, x + w, y, font);
+		w += cb_draw_char(*s++, x + w, y);
 	}
 	return w;
 }

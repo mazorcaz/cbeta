@@ -2,6 +2,10 @@
 
 #include <cbeta/camera.h>
 
+#include <math.h>
+#include <SDL2/SDL.h>
+#include <GL/gl.h>
+
 void cb_camera_init(struct cb_camera* camera) {
 	camera->x = 0.0f;
 	camera->y = 0.0f;
