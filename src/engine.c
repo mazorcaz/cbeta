@@ -27,11 +27,13 @@ bool cb_engine_init() {
 	////////////////////
 	
 	// init sdl
+#ifndef _WIN32
 	SDL_SetHint(SDL_HINT_VIDEODRIVER, "wayland,x11");
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 		printf("cb_engine_init: failed to init sdl: %s\n", SDL_GetError());
 		return false;
 	}
+#endif
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 1);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
