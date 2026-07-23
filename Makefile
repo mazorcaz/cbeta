@@ -26,7 +26,7 @@ bin/resources/%: resources/%
 	cp -r $< $@
 	@echo
 
-bin/cbeta: $(OBJS) $(patsubst %,bin/%,$(shell find resources/))
+bin/cbeta: $(OBJS) $(patsubst %,bin/%,$(shell find resources/ -mindepth 1))
 	@echo "Building $@"
 	@mkdir -p $(dir $@)
 	$(CC) $(OBJS) -o $@ $(LDLIBS)

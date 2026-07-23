@@ -2,9 +2,6 @@
 
 #include <cbeta/main.h>
 
-// grass color: #dfff9a
-// leaf color: #7fff51
-
 int main() {
 	struct cb_engine engine;
 	

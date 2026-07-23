@@ -72,8 +72,11 @@ bool cb_engine_init(struct cb_engine* engine) {
 	for (int z=0; z<16; z++) {
 		for (int y=0; y<16; y++) {
 			for (int x=0; x<16; x++, i++) {
-				if (y == 15)
-					engine->chunk.blocks[i] = CB_MATERIAL_OAK_SAPLING;
+				if (y == 15) {
+					if (i % 3 == 0) engine->chunk.blocks[i] = CB_MATERIAL_OAK_SAPLING;
+					if (i % 3 == 1) engine->chunk.blocks[i] = CB_MATERIAL_SPRUCE_SAPLING;
+					if (i % 3 == 2) engine->chunk.blocks[i] = CB_MATERIAL_BIRCH_SAPLING;
+				}
 				else if (y == 14)
 					engine->chunk.blocks[i] = CB_MATERIAL_GRASS;
 				else if (y == 13)
