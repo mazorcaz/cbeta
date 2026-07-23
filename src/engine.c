@@ -75,6 +75,7 @@ void cb_engine_run(struct cb_engine* engine) {
 	engine->focused = false;
 	engine->running = true;
 	engine->aspect = 800.0f / 600.0f;
+	cb_set_perspective(100.0f, engine->aspect, 0.1f, 100.0f);
 	
 	int i=0;
 	for (int z=0; z<16; z++) {
