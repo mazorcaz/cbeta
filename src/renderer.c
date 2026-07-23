@@ -109,14 +109,63 @@ void cb_render_chunk_bake(struct cb_render_chunk* chunk, float* vertices, float*
 				} else if (material->render_type == CB_RENDER_TYPE_FENCE) {
 					const float* vs = cb_fence_vertices; 
 					const float* ts = material->texcoords;
-					for (int j=0; j<152; j++) {
+					for (int j=0; j<24; j++) {
 						*(vd++) = *(vs++) + x;
 						*(vd++) = *(vs++) + y;
 						*(vd++) = *(vs++) + z;
 						*(td++) = *(ts++);
 						*(td++) = *(ts++);
 					}
-					count += 152;
+					count += 24;
+					
+					if (x < 15 && chunk->blocks[i + 1] == CB_MATERIAL_FENCE) {
+						vs = cb_fence_vertices + 72;
+						ts = material->texcoords + 48;						
+						for (int j=0; j<32; j++) {
+							*(vd++) = *(vs++) + x;
+							*(vd++) = *(vs++) + y;
+							*(vd++) = *(vs++) + z;
+							*(td++) = *(ts++);
+							*(td++) = *(ts++);
+						}
+						count += 32;
+					}
+					if (x > 0 && chunk->blocks[i - 1] == CB_MATERIAL_FENCE) {
+						vs = cb_fence_vertices + 168;
+						ts = material->texcoords + 112;						
+						for (int j=0; j<32; j++) {
+							*(vd++) = *(vs++) + x;
+							*(vd++) = *(vs++) + y;
+							*(vd++) = *(vs++) + z;
+							*(td++) = *(ts++);
+							*(td++) = *(ts++);
+						}
+						count += 32;
+					}
+					if (z < 15 && chunk->blocks[i + 256] == CB_MATERIAL_FENCE) {
+						vs = cb_fence_vertices + 264;
+						ts = material->texcoords + 176;						
+						for (int j=0; j<32; j++) {
+							*(vd++) = *(vs++) + x;
+							*(vd++) = *(vs++) + y;
+							*(vd++) = *(vs++) + z;
+							*(td++) = *(ts++);
+							*(td++) = *(ts++);
+						}
+						count += 32;
+					}
+					if (z > 0 && chunk->blocks[i - 256] == CB_MATERIAL_FENCE) {
+						vs = cb_fence_vertices + 360;
+						ts = material->texcoords + 240;						
+						for (int j=0; j<32; j++) {
+							*(vd++) = *(vs++) + x;
+							*(vd++) = *(vs++) + y;
+							*(vd++) = *(vs++) + z;
+							*(td++) = *(ts++);
+							*(td++) = *(ts++);
+						}
+						count += 32;
+					}
 				}
 			}
 		}

@@ -73,7 +73,8 @@ bool cb_engine_init(struct cb_engine* engine) {
 		for (int y=0; y<16; y++) {
 			for (int x=0; x<16; x++, i++) {
 				if (y == 15) {
-					engine->chunk.blocks[i] = CB_MATERIAL_FENCE;
+					if (i % 5 == 0) engine->chunk.blocks[i] = CB_MATERIAL_AIR;
+					else engine->chunk.blocks[i] = CB_MATERIAL_FENCE;
 				}
 				else if (y == 14)
 					engine->chunk.blocks[i] = CB_MATERIAL_GRASS;
