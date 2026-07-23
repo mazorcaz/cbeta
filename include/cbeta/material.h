@@ -4,6 +4,7 @@
 #define CBETA_MATERIAL_H
 
 #include <stdio.h>
+#include <stdint.h>
 #include <cbeta/geometry.h>
 
 #define CB_MATERIAL_AIR 0
@@ -12,9 +13,11 @@
 #define CB_MATERIAL_DIRT 3
 #define CB_MATERIAL_COBBLESTONE 4
 #define CB_MATERIAL_PLANKS 5
+#define CB_MATERIAL_OAK_SAPLING 6
 
 struct cb_material {
 	const char* name;
+	uint8_t render_type;
 	int offsets[12];
 	float texcoords[48];
 };

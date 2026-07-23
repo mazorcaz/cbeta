@@ -73,9 +73,9 @@ bool cb_engine_init(struct cb_engine* engine) {
 		for (int y=0; y<16; y++) {
 			for (int x=0; x<16; x++, i++) {
 				if (y == 15)
-					engine->chunk.blocks[i] = CB_MATERIAL_GRASS;
+					engine->chunk.blocks[i] = CB_MATERIAL_OAK_SAPLING;
 				else if (y == 14)
-					engine->chunk.blocks[i] = CB_MATERIAL_PLANKS;
+					engine->chunk.blocks[i] = CB_MATERIAL_GRASS;
 				else if (y == 13)
 					engine->chunk.blocks[i] = CB_MATERIAL_COBBLESTONE;
 				else if (y > 9)
@@ -85,6 +85,7 @@ bool cb_engine_init(struct cb_engine* engine) {
 			}
 		}
 	}
+	engine->chunk.blocks[0] = CB_MATERIAL_OAK_SAPLING;
 	cb_render_chunk_bake(&engine->chunk, engine->vertices, engine->texcoords, engine->terrain.id);
 	
 	/////////////////
@@ -153,6 +154,8 @@ void cb_engine_run(struct cb_engine* engine) {
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
 		glEnable(GL_TEXTURE_2D);
+		glEnable(GL_ALPHA_TEST);
+		glAlphaFunc(GL_GREATER, 0.1f);
 		
 		glTranslatef(-8.0f, -8.0f, -20.0f);
 		cb_render_chunk_render(&engine->chunk);

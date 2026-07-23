@@ -22,77 +22,91 @@ void cb_render_chunk_bake(struct cb_render_chunk* chunk, float* vertices, float*
 				uint8_t block = chunk->blocks[i];
 				
 				if (block) {
-					if (z == 15 || chunk->blocks[i + 256] == 0) {
-						const float* vs = cb_cube_vertices + 0; 
-						const float* ts = cb_materials[block].texcoords + 0;
-						for (int j=0; j<4; j++) {
+					struct cb_material* material = cb_materials + block;
+					if (material->render_type == CB_RENDER_TYPE_CUBE) {
+						if (z == 15 || chunk->blocks[i + 256] == 0 || cb_materials[chunk->blocks[i + 256]].render_type == CB_RENDER_TYPE_CROSS) {
+							const float* vs = cb_cube_vertices + 0; 
+							const float* ts = material->texcoords + 0;
+							for (int j=0; j<4; j++) {
+								*(vd++) = *(vs++) + x;
+								*(vd++) = *(vs++) + y;
+								*(vd++) = *(vs++) + z;
+								*(td++) = *(ts++);
+								*(td++) = *(ts++);
+							}
+							count += 4;
+						}
+						if (z == 0 || chunk->blocks[i - 256] == 0 || cb_materials[chunk->blocks[i - 256]].render_type == CB_RENDER_TYPE_CROSS) {
+							const float* vs = cb_cube_vertices + 12; 
+							const float* ts = material->texcoords + 8;
+							for (int j=0; j<4; j++) {
+								*(vd++) = *(vs++) + x;
+								*(vd++) = *(vs++) + y;
+								*(vd++) = *(vs++) + z;
+								*(td++) = *(ts++);
+								*(td++) = *(ts++);
+							}
+							count += 4;
+						}
+						if (y == 15 || chunk->blocks[i + 16] == 0 || cb_materials[chunk->blocks[i + 16]].render_type == CB_RENDER_TYPE_CROSS) {
+							const float* vs = cb_cube_vertices + 24; 
+							const float* ts = material->texcoords + 16;
+							for (int j=0; j<4; j++) {
+								*(vd++) = *(vs++) + x;
+								*(vd++) = *(vs++) + y;
+								*(vd++) = *(vs++) + z;
+								*(td++) = *(ts++);
+								*(td++) = *(ts++);
+							}
+							count += 4;
+						}
+						if (y == 0 || chunk->blocks[i - 16] == 0 || cb_materials[chunk->blocks[i - 16]].render_type == CB_RENDER_TYPE_CROSS) {
+							const float* vs = cb_cube_vertices + 36; 
+							const float* ts = material->texcoords + 24;
+							for (int j=0; j<4; j++) {
+								*(vd++) = *(vs++) + x;
+								*(vd++) = *(vs++) + y;
+								*(vd++) = *(vs++) + z;
+								*(td++) = *(ts++);
+								*(td++) = *(ts++);
+							}
+							count += 4;
+						}
+						if (x == 15 || chunk->blocks[i + 1] == 0 || cb_materials[chunk->blocks[i + 1]].render_type == CB_RENDER_TYPE_CROSS) {
+							const float* vs = cb_cube_vertices + 48; 
+							const float* ts = material->texcoords + 32;
+							for (int j=0; j<4; j++) {
+								*(vd++) = *(vs++) + x;
+								*(vd++) = *(vs++) + y;
+								*(vd++) = *(vs++) + z;
+								*(td++) = *(ts++);
+								*(td++) = *(ts++);
+							}
+							count += 4;
+						}
+						if (x == 0 || chunk->blocks[i - 1] == 0 || cb_materials[chunk->blocks[i - 1]].render_type == CB_RENDER_TYPE_CROSS) {
+							const float* vs = cb_cube_vertices + 60;
+							const float* ts = material->texcoords + 40;
+							for (int j=0; j<4; j++) {
+								*(vd++) = *(vs++) + x;
+								*(vd++) = *(vs++) + y;
+								*(vd++) = *(vs++) + z;
+								*(td++) = *(ts++);
+								*(td++) = *(ts++);
+							}
+							count += 4;
+						}
+					} else if (material->render_type == CB_RENDER_TYPE_CROSS) {
+						const float* vs = cb_cross_vertices; 
+						const float* ts = material->texcoords;
+						for (int j=0; j<16; j++) {
 							*(vd++) = *(vs++) + x;
 							*(vd++) = *(vs++) + y;
 							*(vd++) = *(vs++) + z;
 							*(td++) = *(ts++);
 							*(td++) = *(ts++);
 						}
-						count += 4;
-					}
-					if (z == 0 || chunk->blocks[i - 256] == 0) {
-						const float* vs = cb_cube_vertices + 12; 
-						const float* ts = cb_materials[block].texcoords + 8;
-						for (int j=0; j<4; j++) {
-							*(vd++) = *(vs++) + x;
-							*(vd++) = *(vs++) + y;
-							*(vd++) = *(vs++) + z;
-							*(td++) = *(ts++);
-							*(td++) = *(ts++);
-						}
-						count += 4;
-					}
-					if (y == 15 || chunk->blocks[i + 16] == 0) {
-						const float* vs = cb_cube_vertices + 24; 
-						const float* ts = cb_materials[block].texcoords + 16;
-						for (int j=0; j<4; j++) {
-							*(vd++) = *(vs++) + x;
-							*(vd++) = *(vs++) + y;
-							*(vd++) = *(vs++) + z;
-							*(td++) = *(ts++);
-							*(td++) = *(ts++);
-						}
-						count += 4;
-					}
-					if (y == 0 || chunk->blocks[i - 16] == 0) {
-						const float* vs = cb_cube_vertices + 36; 
-						const float* ts = cb_materials[block].texcoords + 24;
-						for (int j=0; j<4; j++) {
-							*(vd++) = *(vs++) + x;
-							*(vd++) = *(vs++) + y;
-							*(vd++) = *(vs++) + z;
-							*(td++) = *(ts++);
-							*(td++) = *(ts++);
-						}
-						count += 4;
-					}
-					if (x == 15 || chunk->blocks[i + 1] == 0) {
-						const float* vs = cb_cube_vertices + 48; 
-						const float* ts = cb_materials[block].texcoords + 32;
-						for (int j=0; j<4; j++) {
-							*(vd++) = *(vs++) + x;
-							*(vd++) = *(vs++) + y;
-							*(vd++) = *(vs++) + z;
-							*(td++) = *(ts++);
-							*(td++) = *(ts++);
-						}
-						count += 4;
-					}
-					if (x == 0 || chunk->blocks[i - 1] == 0) {
-						const float* vs = cb_cube_vertices + 60;
-						const float* ts = cb_materials[block].texcoords + 40;
-						for (int j=0; j<4; j++) {
-							*(vd++) = *(vs++) + x;
-							*(vd++) = *(vs++) + y;
-							*(vd++) = *(vs++) + z;
-							*(td++) = *(ts++);
-							*(td++) = *(ts++);
-						}
-						count += 4;
+						count += 16;
 					}
 				}
 			}
