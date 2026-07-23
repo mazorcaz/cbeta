@@ -15,14 +15,15 @@ void cb_material_bake(struct cb_material* material) {
 	}
 }
 
-struct cb_material cb_materials[256] = {
-	{"air", {0,0, 0,0, 0,0, 0,0, 0,0, 0,0}, {}},
-	{"stone", {1,0, 1,0, 1,0, 1,0, 1,0, 1,0}, {}},
-	{"dirt", {2,0, 2,0, 2,0, 2,0, 2,0, 2,0}, {}},
-	{"grass", {3,0, 3,0, 0,0, 2,0, 3,0, 3,0}, {}}
-};
+struct cb_material cb_materials[256];
 
 void cb_materials_bake() {
+	cb_materials[CB_MATERIAL_STONE] = (struct cb_material){"stone", {1,0, 1,0, 1,0, 1,0, 1,0, 1,0}, {}};
+	cb_materials[CB_MATERIAL_GRASS] = (struct cb_material){"grass", {3,0, 3,0, 0,0, 2,0, 3,0, 3,0}, {}};
+	cb_materials[CB_MATERIAL_DIRT] = (struct cb_material){"dirt", {2,0, 2,0, 2,0, 2,0, 2,0, 2,0}, {}};
+	cb_materials[CB_MATERIAL_COBBLESTONE] = (struct cb_material){"cobblestone", {0,1, 0,1, 0,1, 0,1, 0,1, 0,1}, {}};
+	cb_materials[CB_MATERIAL_PLANKS] = (struct cb_material){"planks", {4,0, 4,0, 4,0, 4,0, 4,0, 4,0}, {}};
+	
 	for (int i=0; i<256; i++) {
 		cb_material_bake(cb_materials + i);
 	}

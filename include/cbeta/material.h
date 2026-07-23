@@ -6,6 +6,13 @@
 #include <stdio.h>
 #include <cbeta/geometry.h>
 
+#define CB_MATERIAL_AIR 0
+#define CB_MATERIAL_STONE 1
+#define CB_MATERIAL_GRASS 2
+#define CB_MATERIAL_DIRT 3
+#define CB_MATERIAL_COBBLESTONE 4
+#define CB_MATERIAL_PLANKS 5
+
 struct cb_material {
 	const char* name;
 	int offsets[12];

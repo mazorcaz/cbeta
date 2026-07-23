@@ -4,6 +4,10 @@
 
 bool cb_engine_init(struct cb_engine* engine) {
 	
+	////////////////////
+	// INITIALIZATION //
+	////////////////////
+	
 	// init sdl
 	SDL_SetHint(SDL_HINT_VIDEODRIVER, "wayland,x11");
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -35,6 +39,21 @@ bool cb_engine_init(struct cb_engine* engine) {
 	}
 	SDL_GL_SetSwapInterval(1);
 	
+	////////////////////
+	// CREATE OBJECTS //
+	////////////////////
+	
+	// scratch
+	engine->vertices = malloc(4096 * 6 * 4 * 3 * sizeof(float));
+	engine->texcoords = malloc(4096 * 6 * 4 * 2 * sizeof(float));
+	if (!engine->vertices || !engine->texcoords) {
+		printf("cb_engine_init: malloc failed\n");
+		return false;
+	}
+	
+	// materials
+	cb_materials_bake();
+	
 	// camera
 	cb_camera_init(&engine->camera);
 	
@@ -49,20 +68,29 @@ bool cb_engine_init(struct cb_engine* engine) {
 	}
 	
 	// chunk
-	cb_render_chunk_init(&engine->chunk);
-	
-	// scratch
-	engine->vertices = malloc(4096 * 6 * 4 * 3 * sizeof(float));
-	engine->texcoords = malloc(4096 * 6 * 4 * 2 * sizeof(float));
-	if (!engine->vertices || !engine->vertices) {
-		printf("cb_engine_init: malloc failed\n");
-		return false;
+	cb_render_chunk_init(&engine->chunk);int i=0;
+	for (int z=0; z<16; z++) {
+		for (int y=0; y<16; y++) {
+			for (int x=0; x<16; x++, i++) {
+				if (y == 15)
+					engine->chunk.blocks[i] = CB_MATERIAL_GRASS;
+				else if (y == 14)
+					engine->chunk.blocks[i] = CB_MATERIAL_PLANKS;
+				else if (y == 13)
+					engine->chunk.blocks[i] = CB_MATERIAL_COBBLESTONE;
+				else if (y > 9)
+					engine->chunk.blocks[i] = CB_MATERIAL_DIRT;
+				else
+					engine->chunk.blocks[i] = CB_MATERIAL_STONE;
+			}
+		}
 	}
+	cb_render_chunk_bake(&engine->chunk, engine->vertices, engine->texcoords, engine->terrain.id);
 	
-	// materials
-	cb_materials_bake();
+	/////////////////
+	// LOG SUCCESS //
+	/////////////////
 	
-	// success
 	printf("cbeta initialized successfully\n");
 	printf("Video Driver: %s\n", SDL_GetCurrentVideoDriver());
 	printf("GL Renderer: %s\n", glGetString(GL_RENDERER));
@@ -71,27 +99,13 @@ bool cb_engine_init(struct cb_engine* engine) {
 }
 
 void cb_engine_run(struct cb_engine* engine) {
+	
 	engine->lt = SDL_GetTicks64();
 	engine->focused = false;
 	engine->running = true;
+	
 	engine->aspect = 800.0f / 600.0f;
 	cb_set_perspective(100.0f, engine->aspect, 0.1f, 100.0f);
-	
-	int i=0;
-	for (int z=0; z<16; z++) {
-		for (int y=0; y<16; y++) {
-			for (int x=0; x<16; x++, i++) {
-				if (y == 15)
-					engine->chunk.blocks[i] = 3;
-				else if (y > 9)
-					engine->chunk.blocks[i] = 2;
-				else
-					engine->chunk.blocks[i] = 1;
-			}
-		}
-	}
-	
-	cb_render_chunk_bake(&engine->chunk, engine->vertices, engine->texcoords, engine->terrain.id);
 	
 	SDL_Event event;
 	while (engine->running) {
@@ -104,18 +118,22 @@ void cb_engine_run(struct cb_engine* engine) {
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_QUIT)
 				engine->running = false;
+				
 			else if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED) {
 				glViewport(0, 0, event.window.data1, event.window.data2);
 				engine->aspect = (float)event.window.data1 / (float)event.window.data2;
 				cb_set_perspective(100.0f, engine->aspect, 0.1f, 100.0f);
+				
 			} else if (event.type == SDL_MOUSEMOTION) {
 				if (engine->focused) 
 					cb_camera_handle_mouse(&engine->camera, event.motion.xrel, event.motion.yrel);
+					
 			} else if (event.type == SDL_KEYDOWN) {
 				if (event.key.keysym.sym == SDLK_ESCAPE) {
 					SDL_SetRelativeMouseMode(SDL_FALSE);
 					engine->focused = false;
 				}
+				
 			} else if (event.type == SDL_MOUSEBUTTONDOWN) {
 				if (event.button.button == SDL_BUTTON_LEFT) {
 					SDL_SetRelativeMouseMode(SDL_TRUE);
