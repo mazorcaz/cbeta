@@ -6,7 +6,7 @@ void cb_render_chunk_init(struct cb_render_chunk* chunk) {
 	chunk->list = 0;
 }
 
-void cb_render_chunk_bake(struct cb_render_chunk* chunk, GLuint texture, float* vertices, float* texcoords) {
+void cb_render_chunk_bake(struct cb_render_chunk* chunk, float* vertices, float* texcoords, struct cb_material* materials, GLuint terrain) {
 	if (chunk->list) glDeleteLists(chunk->list, 1);
 	chunk->list = glGenLists(1);
 	
@@ -23,74 +23,74 @@ void cb_render_chunk_bake(struct cb_render_chunk* chunk, GLuint texture, float* 
 				
 				if (block) {
 					if (z == 15 || chunk->blocks[i + 256] == 0) {
-						float* vs = cb_cube_vertices + 0; 
-						float* ts = cb_cube_texcoords + 0;
-						for (int i=0; i<4; i++) {
+						const float* vs = cb_cube_vertices + 0; 
+						const float* ts = materials[block].texcoords + 0;
+						for (int j=0; j<4; j++) {
 							*(vd++) = *(vs++) + x;
 							*(vd++) = *(vs++) + y;
 							*(vd++) = *(vs++) + z;
-							*(td++) = (*(ts++) + block)/ 16.0f;
-							*(td++) = *(ts++) / 16.0f;
+							*(td++) = *(ts++);
+							*(td++) = *(ts++);
 						}
 						count += 4;
 					}
 					if (z == 0 || chunk->blocks[i - 256] == 0) {
-						float* vs = cb_cube_vertices + 12; 
-						float* ts = cb_cube_texcoords + 8;
-						for (int i=0; i<4; i++) {
+						const float* vs = cb_cube_vertices + 12; 
+						const float* ts = materials[block].texcoords + 8;
+						for (int j=0; j<4; j++) {
 							*(vd++) = *(vs++) + x;
 							*(vd++) = *(vs++) + y;
 							*(vd++) = *(vs++) + z;
-							*(td++) = (*(ts++) + block) / 16.0f;
-							*(td++) = *(ts++) / 16.0f;
+							*(td++) = *(ts++);
+							*(td++) = *(ts++);
 						}
 						count += 4;
 					}
 					if (y == 15 || chunk->blocks[i + 16] == 0) {
-						float* vs = cb_cube_vertices + 24; 
-						float* ts = cb_cube_texcoords + 16;
-						for (int i=0; i<4; i++) {
+						const float* vs = cb_cube_vertices + 24; 
+						const float* ts = materials[block].texcoords + 16;
+						for (int j=0; j<4; j++) {
 							*(vd++) = *(vs++) + x;
 							*(vd++) = *(vs++) + y;
 							*(vd++) = *(vs++) + z;
-							*(td++) = (*(ts++) + block) / 16.0f;
-							*(td++) = *(ts++) / 16.0f;
+							*(td++) = *(ts++);
+							*(td++) = *(ts++);
 						}
 						count += 4;
 					}
 					if (y == 0 || chunk->blocks[i - 16] == 0) {
-						float* vs = cb_cube_vertices + 36; 
-						float* ts = cb_cube_texcoords + 24;
-						for (int i=0; i<4; i++) {
+						const float* vs = cb_cube_vertices + 36; 
+						const float* ts = materials[block].texcoords + 24;
+						for (int j=0; j<4; j++) {
 							*(vd++) = *(vs++) + x;
 							*(vd++) = *(vs++) + y;
 							*(vd++) = *(vs++) + z;
-							*(td++) = (*(ts++) + block) / 16.0f;
-							*(td++) = *(ts++) / 16.0f;
+							*(td++) = *(ts++);
+							*(td++) = *(ts++);
 						}
 						count += 4;
 					}
 					if (x == 15 || chunk->blocks[i + 1] == 0) {
-						float* vs = cb_cube_vertices + 48; 
-						float* ts = cb_cube_texcoords + 32;
-						for (int i=0; i<4; i++) {
+						const float* vs = cb_cube_vertices + 48; 
+						const float* ts = materials[block].texcoords + 32;
+						for (int j=0; j<4; j++) {
 							*(vd++) = *(vs++) + x;
 							*(vd++) = *(vs++) + y;
 							*(vd++) = *(vs++) + z;
-							*(td++) = (*(ts++) + block) / 16.0f;
-							*(td++) = *(ts++) / 16.0f;
+							*(td++) = *(ts++);
+							*(td++) = *(ts++);
 						}
 						count += 4;
 					}
 					if (x == 0 || chunk->blocks[i - 1] == 0) {
-						float* vs = cb_cube_vertices + 60;
-						float* ts = cb_cube_texcoords + 40;
-						for (int i=0; i<4; i++) {
+						const float* vs = cb_cube_vertices + 60;
+						const float* ts = materials[block].texcoords + 40;
+						for (int j=0; j<4; j++) {
 							*(vd++) = *(vs++) + x;
 							*(vd++) = *(vs++) + y;
 							*(vd++) = *(vs++) + z;
-							*(td++) = (*(ts++) + block) / 16.0f;
-							*(td++) = *(ts++) / 16.0f;
+							*(td++) = *(ts++);
+							*(td++) = *(ts++);
 						}
 						count += 4;
 					}
@@ -100,24 +100,15 @@ void cb_render_chunk_bake(struct cb_render_chunk* chunk, GLuint texture, float* 
 	}
 	
 	glNewList(chunk->list, GL_COMPILE);
-				
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
-	glEnable(GL_TEXTURE_2D);
 
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	
-	glMatrixMode(GL_MODELVIEW);	
-	glPushMatrix();
-	
-	glBindTexture(GL_TEXTURE_2D, texture);
+	glBindTexture(GL_TEXTURE_2D, terrain);
 	glVertexPointer(3, GL_FLOAT, 0, vertices);
 	glTexCoordPointer(2, GL_FLOAT, 0, texcoords);
-	glTranslatef(-8.0f, -8.0f, -20.0f);
-	glDrawArrays(GL_QUADS, 0, count);
 	
-	glPopMatrix();
+	glDrawArrays(GL_QUADS, 0, count);
 	
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -134,8 +125,7 @@ void cb_render_chunk_free(struct cb_render_chunk* chunk) {
 	chunk->list = 0;
 }
 
-// vertices
-GLfloat cb_cube_vertices[] = {
+const float cb_cube_vertices[] = {
 	// front
 	 1.0f,  1.0f,  1.0f,
 	-0.0f,  1.0f,  1.0f,
@@ -174,7 +164,7 @@ GLfloat cb_cube_vertices[] = {
 };
 
 // colors
-GLfloat cb_cube_colors[] = {
+const float cb_cube_colors[] = {
 	1.0f, 0.0f, 0.0f,
 	1.0f, 0.0f, 0.0f,
 	1.0f, 0.0f, 0.0f,
@@ -208,7 +198,7 @@ GLfloat cb_cube_colors[] = {
 
 // texcoords
 
-GLfloat cb_cube_texcoords[] = {
+const float cb_cube_texcoords[] = {
 	// front
 	1.0f, 0.0f,
 	0.0f, 0.0f,

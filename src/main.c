@@ -3,7 +3,6 @@
 #include <cbeta/main.h>
 
 int main() {
-
 	struct cb_engine engine;
 	
 	if (!cb_engine_init(&engine)) {

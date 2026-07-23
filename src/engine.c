@@ -38,8 +38,12 @@ bool cb_engine_init(struct cb_engine* engine) {
 	// camera
 	cb_camera_init(&engine->camera);
 	
-	// texture
-	if (!cb_resource_load(&engine->test_texture, "resources/terrain.png")) {
+	// textures
+	if (!cb_resource_load(&engine->test_texture, "resources/test.png")) {
+		printf("cb_engine_init: failed to load texture\n");
+		return false;
+	}
+	if (!cb_resource_load(&engine->terrain, "resources/terrain.png")) {
 		printf("cb_engine_init: failed to load texture\n");
 		return false;
 	}
@@ -53,6 +57,15 @@ bool cb_engine_init(struct cb_engine* engine) {
 	if (!engine->vertices || !engine->vertices) {
 		printf("cb_engine_init: malloc failed\n");
 		return false;
+	}
+	
+	// materials
+	engine->materials[0] = (struct cb_material){"air", {0,0, 0,0, 0,0, 0,0, 0,0, 0,0}, {}};
+	engine->materials[1] = (struct cb_material){"stone", {1,0, 1,0, 1,0, 1,0, 1,0, 1,0}, {}};
+	engine->materials[2] = (struct cb_material){"dirt", {2,0, 2,0, 2,0, 2,0, 2,0, 2,0}, {}};
+	engine->materials[3] = (struct cb_material){"grass", {3,0, 3,0, 0,0, 2,0, 3,0, 3,0}, {}};
+	for (int i=0; i<256; i++) {
+		cb_material_bake(&engine->materials[i]);
 	}
 	
 	// success
@@ -83,7 +96,7 @@ void cb_engine_run(struct cb_engine* engine) {
 		}
 	}
 	
-	cb_render_chunk_bake(&engine->chunk, engine->test_texture.id, engine->vertices, engine->texcoords);
+	cb_render_chunk_bake(&engine->chunk, engine->vertices, engine->texcoords, engine->materials, engine->terrain.id);
 	
 	SDL_Event event;
 	while (engine->running) {
@@ -122,8 +135,13 @@ void cb_engine_run(struct cb_engine* engine) {
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
-		glMatrixMode(GL_MODELVIEW);
 		cb_camera_apply(&engine->camera);
+				
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_CULL_FACE);
+		glEnable(GL_TEXTURE_2D);
+		
+		glTranslatef(-8.0f, -8.0f, -20.0f);
 		cb_render_chunk_render(&engine->chunk);
 
 		SDL_GL_SwapWindow(engine->window);

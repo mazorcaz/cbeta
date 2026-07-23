@@ -47,6 +47,7 @@ void cb_camera_free(struct cb_camera* camera) {
 }
 
 void cb_camera_apply(struct cb_camera* camera) {	
+	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glRotatef(camera->pitch, 1.0f, 0.0f, 0.0f);
 	glRotatef(camera->yaw + 90, 0.0f, 1.0f, 0.0f);
