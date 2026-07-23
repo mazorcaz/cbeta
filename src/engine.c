@@ -54,6 +54,9 @@ bool cb_engine_init(struct cb_engine* engine) {
 	// materials
 	cb_materials_bake();
 	
+	// font
+	cb_font_bake();
+	
 	// camera
 	cb_camera_init(&engine->camera);
 	
@@ -63,6 +66,10 @@ bool cb_engine_init(struct cb_engine* engine) {
 		return false;
 	}
 	if (!cb_resource_load(&engine->terrain, "resources/terrain.png")) {
+		printf("cb_engine_init: failed to load texture\n");
+		return false;
+	}
+	if (!cb_resource_load(&engine->font, "resources/font.png")) {
 		printf("cb_engine_init: failed to load texture\n");
 		return false;
 	}
@@ -109,8 +116,9 @@ void cb_engine_run(struct cb_engine* engine) {
 	engine->focused = false;
 	engine->running = true;
 	
-	engine->aspect = 800.0f / 600.0f;
-	cb_set_perspective(100.0f, engine->aspect, 0.1f, 100.0f);
+	engine->width = 800;
+	engine->height = 600;
+	cb_set_perspective(100.0f, (float)engine->width / (float)engine->height, 0.1f, 100.0f);
 	
 	SDL_Event event;
 	while (engine->running) {
@@ -125,9 +133,10 @@ void cb_engine_run(struct cb_engine* engine) {
 				engine->running = false;
 				
 			else if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED) {
-				glViewport(0, 0, event.window.data1, event.window.data2);
-				engine->aspect = (float)event.window.data1 / (float)event.window.data2;
-				cb_set_perspective(100.0f, engine->aspect, 0.1f, 100.0f);
+				engine->width = event.window.data1;
+				engine->height = event.window.data2;
+				glViewport(0, 0, engine->width, engine->height);
+				cb_set_perspective(100.0f, (float)engine->width / (float)engine->height, 0.1f, 100.0f);
 				
 			} else if (event.type == SDL_MOUSEMOTION) {
 				if (engine->focused) 
@@ -161,8 +170,31 @@ void cb_engine_run(struct cb_engine* engine) {
 		glEnable(GL_ALPHA_TEST);
 		glAlphaFunc(GL_GREATER, 0.1f);
 		
+		glPushMatrix();
 		glTranslatef(-8.0f, -8.0f, -20.0f);
 		cb_render_chunk_render(&engine->chunk);
+		glPopMatrix();
+		
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_CULL_FACE);
+		
+		glMatrixMode(GL_PROJECTION);
+		glPushMatrix();
+		
+		glLoadIdentity();
+		glOrtho(0.0, engine->width, engine->height, 0.0, -1.0, 1.0);
+		
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		
+		char str[1024];
+		sprintf(str, "fps is %i", (int)(1000.0f / (float)dt));
+		
+		cb_draw_string(str, 0, 0, engine->font.id);
+		
+		glMatrixMode(GL_PROJECTION);
+		glPopMatrix();
+		
 
 		SDL_GL_SwapWindow(engine->window);
 	}

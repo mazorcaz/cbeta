@@ -14,6 +14,7 @@
 #include <cbeta/renderer.h>
 #include <cbeta/resource.h>
 #include <cbeta/material.h>
+#include <cbeta/font.h>
 
 struct cb_engine {
 	SDL_Window* window;
@@ -22,7 +23,8 @@ struct cb_engine {
 	uint64_t lt;
 	bool running;
 	bool focused;
-	float aspect;
+	int width;
+	int height;
 	
 	float* vertices;
 	float* texcoords;
@@ -30,9 +32,11 @@ struct cb_engine {
 	struct cb_material materials[256];
 	
 	struct cb_camera camera;
+	struct cb_render_chunk chunk;
+	
 	struct cb_resource test_texture;
 	struct cb_resource terrain;
-	struct cb_render_chunk chunk;
+	struct cb_resource font;
 };
 
 bool cb_engine_init(struct cb_engine* engine);

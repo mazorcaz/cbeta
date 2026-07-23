@@ -174,11 +174,12 @@ void cb_render_chunk_bake(struct cb_render_chunk* chunk, float* vertices, float*
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	
+	glNewList(chunk->list, GL_COMPILE);
+	
 	glBindTexture(GL_TEXTURE_2D, terrain);
+	
 	glVertexPointer(3, GL_FLOAT, 0, vertices);
 	glTexCoordPointer(2, GL_FLOAT, 0, texcoords);
-	
-	glNewList(chunk->list, GL_COMPILE);
 	
 	glDrawArrays(GL_QUADS, 0, count);
 	
