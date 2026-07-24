@@ -3,6 +3,7 @@
 #include <cbeta/font.h>
 
 #include <GL/gl.h>
+#include <cbeta/gui.h>
 #include <cbeta/resource.h>
 #include <cbeta/engine.h>
 
@@ -95,7 +96,7 @@ int cb_draw_char(char c, int x, int y) {
 		float top = (float)cb_font_y[c] / 16.0f;
 		float bottom = top + 1/16.0f;
 		
-		glBindTexture(GL_TEXTURE_2D, cb_engine->font->id);
+		glBindTexture(GL_TEXTURE_2D, cb_engine->gui->font->id);
 		glBegin(GL_QUADS);
 		
 		glColor3f(1.0f, 1.0f, 1.0f);

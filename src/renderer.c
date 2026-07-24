@@ -2,10 +2,57 @@
 
 #include <cbeta/renderer.h>
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <cbeta/engine.h>
+#include <cbeta/camera.h>
 #include <cbeta/resource.h>
 #include <cbeta/material.h>
 #include <cbeta/geometry.h>
+
+bool cb_renderer_init(struct cb_renderer* renderer) {
+	renderer->scratch_vertices = malloc(4096 * 64 * 4 * 3 * sizeof(float));
+	renderer->scratch_texcoords = malloc(4096 * 64 * 4 * 2 * sizeof(float));
+	if (!renderer->scratch_vertices || !renderer->scratch_texcoords) {
+		printf("cb_engine_init: malloc failed\n");
+		return false;
+	}
+	
+	renderer->terrain = malloc(sizeof(struct cb_resource));
+	if (!renderer->terrain || !cb_resource_load(renderer->terrain, "resources/terrain.png")) {
+		printf("cb_renderer_init: failed to load terrain texture\n");
+		return false;
+	}
+	
+	return true;
+}
+
+void cb_renderer_free(struct cb_renderer* renderer) {
+	if (renderer->scratch_vertices) free(renderer->scratch_vertices);
+	if (renderer->scratch_texcoords) free(renderer->scratch_texcoords);
+	
+	if (renderer->terrain) {
+		cb_resource_free(renderer->terrain);
+		free(renderer->terrain);
+	}
+}
+
+void cb_renderer_render(struct cb_renderer* renderer) {
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+	cb_camera_apply(cb_engine->camera);
+			
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GREATER, 0.1f);
+	
+	glPushMatrix();
+	glTranslatef(-8.0f, -8.0f, -20.0f);
+	cb_render_chunk_render(cb_engine->chunk);
+	glPopMatrix();
+}
 
 void cb_render_chunk_init(struct cb_render_chunk* chunk) {
 	chunk->list = 0;
@@ -17,8 +64,8 @@ void cb_render_chunk_bake(struct cb_render_chunk* chunk) {
 	
 	int count = 0;
 	
-	float* vd = cb_engine->vertices;
-	float* td = cb_engine->texcoords;
+	float* vd = cb_engine->renderer->scratch_vertices;
+	float* td = cb_engine->renderer->scratch_texcoords;
 	
 	int i=0;
 	for (int z=0; z<16; z++) {
@@ -175,23 +222,22 @@ void cb_render_chunk_bake(struct cb_render_chunk* chunk) {
 			}
 		}
 	}
+	
+	glNewList(chunk->list, GL_COMPILE);
 
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glBindTexture(GL_TEXTURE_2D, cb_engine->renderer->terrain->id);
 	
-	glNewList(chunk->list, GL_COMPILE);
-	
-	glBindTexture(GL_TEXTURE_2D, cb_engine->terrain->id);
-	
-	glVertexPointer(3, GL_FLOAT, 0, cb_engine->vertices);
-	glTexCoordPointer(2, GL_FLOAT, 0, cb_engine->texcoords);
+	glVertexPointer(3, GL_FLOAT, 0, cb_engine->renderer->scratch_vertices);
+	glTexCoordPointer(2, GL_FLOAT, 0, cb_engine->renderer->scratch_texcoords);
 	
 	glDrawArrays(GL_QUADS, 0, count);
 	
-	glEndList();
-	
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	
+	glEndList();
 }
 
 void cb_render_chunk_render(struct cb_render_chunk* chunk) {

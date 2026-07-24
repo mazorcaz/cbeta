@@ -4,7 +4,19 @@
 #define CBETA_RENDERER_H
 
 #include <stdint.h>
+#include <stdbool.h>
 #include <GL/gl.h>
+
+struct cb_renderer {
+	float* scratch_vertices;
+	float* scratch_texcoords;
+	
+	struct cb_resource* terrain;
+};
+
+bool cb_renderer_init(struct cb_renderer* renderer);
+void cb_renderer_free(struct cb_renderer* renderer);
+void cb_renderer_render(struct cb_renderer* renderer);
 
 struct cb_render_chunk {
 	GLuint list;
