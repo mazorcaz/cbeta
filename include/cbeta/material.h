@@ -6,6 +6,11 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#define CB_RENDER_TYPE_NONE 0
+#define CB_RENDER_TYPE_CUBE 1
+#define CB_RENDER_TYPE_CROSS 2
+#define CB_RENDER_TYPE_FENCE 3
+
 #define CB_MATERIAL_AIR ((0<<4)+0)
 #define CB_MATERIAL_STONE ((1<<4)+0)
 #define CB_MATERIAL_GRASS ((2<<4)+0)
@@ -22,11 +27,8 @@ struct cb_material {
 	const char* name;
 	uint8_t render_type;
 	bool solid;
-	int offsets[12];
-	float texcoords[48];
+	float offsets[12];
 };
-
-void cb_material_bake(struct cb_material* material);
 
 extern struct cb_material cb_materials[];
 void cb_materials_bake();

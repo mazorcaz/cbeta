@@ -5,10 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <GL/gl.h>
-#include <cbeta/engine.h>
-#include <cbeta/window.h>
 #include <cbeta/font.h>
-#include <cbeta/resource.h>
 
 bool cb_gui_init(struct cb_gui* gui) {
 	gui->font = malloc(sizeof(struct cb_resource));
@@ -27,7 +24,7 @@ void cb_gui_free(struct cb_gui* gui) {
 	}
 }
 
-void cb_gui_render(struct cb_gui* gui) {
+void cb_gui_render(struct cb_gui* gui, struct cb_window* window) {
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
 	glEnable(GL_TEXTURE_2D);
@@ -38,12 +35,12 @@ void cb_gui_render(struct cb_gui* gui) {
 	glPushMatrix();
 	
 	glLoadIdentity();
-	glOrtho(0.0, cb_engine->window->width, cb_engine->window->height, 0.0, -1.0, 1.0);
+	glOrtho(0.0, window->width, window->height, 0.0, -1.0, 1.0);
 		
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	
-	cb_draw_string("Some Chicken Eat Chicken", 0, 0);
+	cb_draw_string("Some Chicken Eat Chicken", 0, 0, gui->font);
 	
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();

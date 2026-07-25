@@ -15,13 +15,10 @@ struct cb_engine {
 	bool running;
 	
 	struct cb_camera* camera;
-	struct cb_render_chunk* chunk;
 };
 
-bool cb_engine_init();
-void cb_engine_free();
-void cb_engine_run();
-
-extern struct cb_engine* cb_engine;
+bool cb_engine_init(struct cb_engine* engine);
+void cb_engine_free(struct cb_engine* engine);
+void cb_engine_run(struct cb_engine* engine);
 
 #endif

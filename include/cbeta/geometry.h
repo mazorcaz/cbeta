@@ -3,18 +3,35 @@
 #ifndef CBETA_GEOMETRY_H
 #define CBETA_GEOMETRY_H
 
-#define CB_RENDER_TYPE_NONE 0
-#define CB_RENDER_TYPE_CUBE 1
-#define CB_RENDER_TYPE_CROSS 2
-#define CB_RENDER_TYPE_FENCE 3
+#include <stdbool.h>
 
-extern const float cb_cube_vertices[];
-extern const float cb_cube_texcoords[];
+struct cb_mesh {
+	// buffers
+	float* pbuffer;
+	float* tbuffer;
+	
+	// inremented pointers
+	float* p;
+	float* t;
+	
+	// total vertices
+	int count;
+};
 
-extern const float cb_cross_vertices[];
-extern const float cb_cross_texcoords[];
+bool cb_mesh_init(struct cb_mesh* mesh);
+void cb_mesh_free(struct cb_mesh* mesh);
+void cb_mesh_reset(struct cb_mesh* mesh);
+void cb_mesh_push(struct cb_mesh* mesh, float x, float y, float z, float u, float v);
 
-extern const float cb_fence_vertices[];
-extern const float cb_fence_texcoords[];
+void cb_cube_front(struct cb_mesh* mesh, float x, float y, float z, float u, float v);
+void cb_cube_back(struct cb_mesh* mesh, float x, float y, float z, float u, float v);
+void cb_cube_top(struct cb_mesh* mesh, float x, float y, float z, float u, float v);
+void cb_cube_bottom(struct cb_mesh* mesh, float x, float y, float z, float u, float v);
+void cb_cube_right(struct cb_mesh* mesh, float x, float y, float z, float u, float v);
+void cb_cube_left(struct cb_mesh* mesh, float x, float y, float z, float u, float v);
+
+void cb_cross(struct cb_mesh* mesh, float x, float y, float z, float u, float v);
+
+void cb_fence_pole(struct cb_mesh* mesh, float x, float y, float z, float u, float v);
 
 #endif

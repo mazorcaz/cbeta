@@ -4,10 +4,6 @@
 
 #include <math.h>
 #include <GL/gl.h>
-#include <cbeta/engine.h>
-#include <cbeta/window.h>
-
-
 
 void cb_camera_init(struct cb_camera* camera) {
 	camera->x = 0.0f;
@@ -55,9 +51,7 @@ static void cb_camera_handle_keys(struct cb_camera* camera, const uint8_t* keys,
 
 void cb_camera_handle(struct cb_camera* camera, SDL_Event* event) {
 	if (event->type == SDL_MOUSEMOTION) {
-		if (cb_engine->window->focused) {
-			cb_camera_handle_mouse(cb_engine->camera, event->motion.xrel, event->motion.yrel);
-		}
+		cb_camera_handle_mouse(camera, event->motion.xrel, event->motion.yrel);
 	}
 }
 

@@ -5,6 +5,7 @@
 
 #include <stdint.h>
 #include <SDL2/SDL.h>
+#include <cbeta/window.h>
 
 struct cb_camera {
 	float x, y, z;

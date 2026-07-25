@@ -4,8 +4,6 @@
 
 #include <GL/gl.h>
 #include <cbeta/gui.h>
-#include <cbeta/resource.h>
-#include <cbeta/engine.h>
 
 uint8_t cb_font_x[256];
 uint8_t cb_font_y[256];
@@ -87,7 +85,7 @@ void cb_font_bake() {
 	cb_font_x['?'] = 15; cb_font_y['?'] = 3; cb_font_w['?'] = 6;
 }
 
-int cb_draw_char(char c, int x, int y) {
+int cb_draw_char(char c, int x, int y, struct cb_resource* font) {
 	if (c >= 32 && c <= 126) {
 		float width = cb_font_w[c];
 		
@@ -96,7 +94,7 @@ int cb_draw_char(char c, int x, int y) {
 		float top = (float)cb_font_y[c] / 16.0f;
 		float bottom = top + 1/16.0f;
 		
-		glBindTexture(GL_TEXTURE_2D, cb_engine->gui->font->id);
+		glBindTexture(GL_TEXTURE_2D, font->id);
 		glBegin(GL_QUADS);
 		
 		glColor3f(1.0f, 1.0f, 1.0f);
@@ -121,10 +119,10 @@ int cb_draw_char(char c, int x, int y) {
 	return 0;
 }
 
-int cb_draw_string(const char* s, int x, int y) {
+int cb_draw_string(const char* s, int x, int y, struct cb_resource* font) {
 	int w = 0;
 	while (*s) {
-		w += cb_draw_char(*s++, x + w, y);
+		w += cb_draw_char(*s++, x + w, y, font);
 	}
 	return w;
 }
