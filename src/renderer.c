@@ -68,6 +68,8 @@ bool cb_renderer_init(struct cb_renderer* renderer) {
 			if (x > 0) left = chunk - 1;
 			
 			cb_render_chunk_bake(chunk, &renderer->mesh, &renderer->terrain, front, back, right, left);
+			
+			printf("%i%% done baking\n", i / ((32*32)/100));
 		}
 	}
 	
@@ -96,26 +98,13 @@ void cb_renderer_render(struct cb_renderer* renderer, struct cb_camera* camera) 
 	}
 }
 
-bool cb_render_chunk_init(struct cb_render_chunk* chunk) {
+void cb_render_chunk_init(struct cb_render_chunk* chunk) {
 	chunk->list = 0;
-	
-	chunk->blocks = malloc(4096 * 2);
-	if (!chunk->blocks) {
-		printf("cb_render_chunk_init: malloc failed\n");
-		return false;
-	}
-	
-	return true;
 }
 
 void cb_render_chunk_free(struct cb_render_chunk* chunk) {
 	if (chunk->list) glDeleteLists(chunk->list, 1);
 	chunk->list = 0;
-	
-	if (chunk->blocks) {
-		free(chunk->blocks);
-		chunk->blocks = NULL;
-	}
 }
 
 void cb_render_chunk_bake(struct cb_render_chunk* chunk, struct cb_mesh* mesh, struct cb_resource* texture,

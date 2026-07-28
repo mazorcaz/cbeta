@@ -12,12 +12,12 @@
 
 struct cb_render_chunk {
 	GLuint list;
-	uint16_t* blocks;
+	uint16_t blocks[4096];
 	int x;
 	int z;
 };
 
-bool cb_render_chunk_init(struct cb_render_chunk* chunk);
+void cb_render_chunk_init(struct cb_render_chunk* chunk);
 void cb_render_chunk_free(struct cb_render_chunk* chunk);
 void cb_render_chunk_bake(struct cb_render_chunk* chunk, struct cb_mesh* mesh, struct cb_resource* texture,
 	struct cb_render_chunk* front, struct cb_render_chunk* back, struct cb_render_chunk* right, struct cb_render_chunk* left);
