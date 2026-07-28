@@ -5,16 +5,20 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <cbeta/window.h>
+#include <cbeta/camera.h>
+#include <cbeta/renderer.h>
+#include <cbeta/gui.h>
 
 struct cb_engine {
-	struct cb_window* window;
-	struct cb_renderer* renderer;
-	struct cb_gui* gui;
+	struct cb_window window;
+	struct cb_renderer renderer;
+	struct cb_gui gui;
 	
 	uint64_t lt;
 	bool running;
 	
-	struct cb_camera* camera;
+	struct cb_camera camera;
 };
 
 bool cb_engine_init(struct cb_engine* engine);

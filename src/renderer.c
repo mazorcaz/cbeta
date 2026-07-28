@@ -7,43 +7,72 @@
 #include <cbeta/material.h>
 
 bool cb_renderer_init(struct cb_renderer* renderer) {
-	renderer->terrain = malloc(sizeof(struct cb_resource));
-	if (!renderer->terrain || !cb_resource_load(renderer->terrain, "resources/terrain.png")) {
+	if (!cb_resource_load(&renderer->terrain, "resources/terrain.png")) {
 		printf("cb_renderer_init: failed to load terrain texture\n");
 		return false;
 	}
 	
-	renderer->mesh = malloc(sizeof(struct cb_mesh));
-	if (!renderer->mesh || !cb_mesh_init(renderer->mesh)) {
+	if (!cb_mesh_init(&renderer->mesh)) {
 		printf("cb_renderer_init: failed to init mesh\n");
 		return false;
 	}
 	
-	renderer->chunk = malloc(sizeof(struct cb_render_chunk));
-	if (!renderer->chunk) {
-		printf("cb_engine_init: malloc failed\n");
-		return false;
+	renderer->chunks = malloc(64 * 64 * sizeof(struct cb_render_chunk));
+	int i=0;
+	for (int z=0; z<64; z++) {
+		for (int x=0; x<64; x++,i++) {
+			struct cb_render_chunk* chunk = renderer->chunks + i;
+			cb_render_chunk_init(chunk);
+			if (!chunk) {
+				printf("cb_renderer_init: failed to init render chunk\n");
+				return false;
+			}
+			
+			chunk->x = x-32;
+			chunk->z = z-32;
+			
+			int j=0;
+			for (int z=0; z<16; z++) {
+				for (int y=0; y<16; y++) {
+					for (int x=0; x<16; x++,j++) {
+						uint16_t material = CB_MATERIAL_DIRT;
+						
+						if (y == 15) {
+							material = CB_MATERIAL_GRASS;
+						}
+						
+						chunk->blocks[j] = material;
+					}
+				}
+			}
+		}
 	}
-	cb_render_chunk_init(renderer->chunk);
-	for (int i=0; i<4096; i++) {
-		renderer->chunk->blocks[i] = CB_MATERIAL_BEDROCK;
+	i = 0;
+	for (int z=0; z<64; z++) {
+		for (int x=0; x<64; x++,i++) {
+			struct cb_render_chunk* chunk = renderer->chunks + i;
+			
+			struct cb_render_chunk* front = NULL;
+			struct cb_render_chunk* back = NULL;
+			struct cb_render_chunk* right = NULL;
+			struct cb_render_chunk* left = NULL;
+			
+			if (z < 15) front = chunk + 64;
+			if (z > 0) back = chunk - 64;
+			if (x < 15) right = chunk + 1;
+			if (x > 0) left = chunk - 1;
+			
+			cb_render_chunk_bake(chunk, &renderer->mesh, &renderer->terrain, front, back, right, left);
+		}
 	}
-	cb_render_chunk_bake(renderer->chunk, renderer->mesh, renderer->terrain);
 	
 	return true;
 }
 
 void cb_renderer_free(struct cb_renderer* renderer) {
-	if (renderer->mesh) {
-		cb_mesh_free(renderer->mesh);
-		free(renderer->mesh);
-		renderer->mesh = NULL;
-	}
-	if (renderer->terrain) {
-		cb_resource_free(renderer->terrain);
-		free(renderer->terrain);
-		renderer->terrain = NULL;
-	}
+	cb_resource_free(&renderer->terrain);
+	cb_mesh_free(&renderer->mesh);
+	cb_render_chunk_free(renderer->chunks);
 }
 
 void cb_renderer_render(struct cb_renderer* renderer, struct cb_camera* camera) {
@@ -57,26 +86,45 @@ void cb_renderer_render(struct cb_renderer* renderer, struct cb_camera* camera) 
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0.1f);
 	
-	glPushMatrix();
-	glTranslatef(-8.0f, -8.0f, -20.0f);
-	cb_render_chunk_render(renderer->chunk);
-	glPopMatrix();
+	for (int i=0; i<64*64; i++) {
+		cb_render_chunk_render(renderer->chunks + i);
+	}
 }
 
-void cb_render_chunk_init(struct cb_render_chunk* chunk) {
+bool cb_render_chunk_init(struct cb_render_chunk* chunk) {
 	chunk->list = 0;
+	
+	chunk->blocks = malloc(4096 * 2);
+	if (!chunk->blocks) {
+		printf("cb_render_chunk_init: malloc failed\n");
+		return false;
+	}
+	
+	return true;
 }
 
 void cb_render_chunk_free(struct cb_render_chunk* chunk) {
 	if (chunk->list) glDeleteLists(chunk->list, 1);
 	chunk->list = 0;
+	
+	if (chunk->blocks) {
+		free(chunk->blocks);
+		chunk->blocks = NULL;
+	}
 }
 
-void cb_render_chunk_bake(struct cb_render_chunk* chunk, struct cb_mesh* mesh, struct cb_resource* texture) {
+void cb_render_chunk_bake(struct cb_render_chunk* chunk, struct cb_mesh* mesh, struct cb_resource* texture,
+	struct cb_render_chunk* front, struct cb_render_chunk* back, struct cb_render_chunk* right, struct cb_render_chunk* left) {
+		
 	if (chunk->list) glDeleteLists(chunk->list, 1);
 	chunk->list = glGenLists(1);
 	
 	cb_mesh_reset(mesh);
+	
+	int xmin = chunk->x * 16;
+	int zmin = chunk->z * 16;
+	int xmax = xmin + 16;
+	int zmax = zmin + 16;
 	
 	int i=0;
 	for (int z=0; z<16; z++) {
@@ -86,26 +134,26 @@ void cb_render_chunk_bake(struct cb_render_chunk* chunk, struct cb_mesh* mesh, s
 				struct cb_material* material = cb_materials + block;
 				
 				if (material->render_type == CB_RENDER_TYPE_CUBE) {
-					if (z == 15 || !cb_materials[chunk->blocks[i + 256]].solid) {
-						cb_cube_front(mesh, x, y, z, material->offsets[0], material->offsets[1]);
+					if (z == 15 && front) {
+						cb_cube_front(mesh, x+xmin, y, z+zmin, material->offsets[0], material->offsets[1]);
 					}
 					if (z == 0 || !cb_materials[chunk->blocks[i - 256]].solid) {
-						cb_cube_back(mesh, x, y, z, material->offsets[2], material->offsets[3]);
+						cb_cube_back(mesh, x+xmin, y, z+zmin, material->offsets[2], material->offsets[3]);
 					}
 					if (y == 15 || !cb_materials[chunk->blocks[i + 16]].solid) {
-						cb_cube_top(mesh, x, y, z, material->offsets[4], material->offsets[5]);
+						cb_cube_top(mesh, x+xmin, y, z+zmin, material->offsets[4], material->offsets[5]);
 					}
 					if (y == 0 || !cb_materials[chunk->blocks[i - 16]].solid) {
-						cb_cube_bottom(mesh, x, y, z, material->offsets[6], material->offsets[7]);
+						cb_cube_bottom(mesh, x+xmin, y, z+zmin, material->offsets[6], material->offsets[7]);
 					}
 					if (x == 15 || !cb_materials[chunk->blocks[i + 1]].solid) {
-						cb_cube_right(mesh, x, y, z, material->offsets[8], material->offsets[9]);
+						cb_cube_right(mesh, x+xmin, y, z+zmin, material->offsets[8], material->offsets[9]);
 					}
 					if (x == 0 || !cb_materials[chunk->blocks[i - 1]].solid) {
-						cb_cube_left(mesh, x, y, z, material->offsets[10], material->offsets[11]);
+						cb_cube_left(mesh, x+xmin, y, z+zmin, material->offsets[10], material->offsets[11]);
 					}
 				} else if (material->render_type == CB_RENDER_TYPE_CROSS) {
-					cb_cross(mesh, x, y, z, material->offsets[0], material->offsets[1]);
+					cb_cross(mesh, x+xmin, y, z+zmin, material->offsets[0], material->offsets[1]);
 				}
 			}
 		}
@@ -129,5 +177,6 @@ void cb_render_chunk_bake(struct cb_render_chunk* chunk, struct cb_mesh* mesh, s
 }
 
 void cb_render_chunk_render(struct cb_render_chunk* chunk) {
+	//glTranslatef(-chunk->x * 16.0f, -8.0f, -chunk->z * 16.0f);
 	if (chunk->list) glCallList(chunk->list);
 }

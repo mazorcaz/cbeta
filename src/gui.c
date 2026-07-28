@@ -8,8 +8,7 @@
 #include <cbeta/font.h>
 
 bool cb_gui_init(struct cb_gui* gui) {
-	gui->font = malloc(sizeof(struct cb_resource));
-	if (!gui->font || !cb_resource_load(gui->font, "resources/font.png")) {
+	if (!cb_resource_load(&gui->font, "resources/font.png")) {
 		printf("cb_gui_init: failed to load font texture\n");
 		return false;
 	}
@@ -18,13 +17,10 @@ bool cb_gui_init(struct cb_gui* gui) {
 }
 
 void cb_gui_free(struct cb_gui* gui) {
-	if (gui->font) {
-		cb_resource_free(gui->font);
-		free(gui->font);
-	}
+	cb_resource_free(&gui->font);
 }
 
-void cb_gui_render(struct cb_gui* gui, struct cb_window* window) {
+void cb_gui_render(struct cb_gui* gui, struct cb_window* window, uint64_t dt) {
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
 	glEnable(GL_TEXTURE_2D);
@@ -40,7 +36,9 @@ void cb_gui_render(struct cb_gui* gui, struct cb_window* window) {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	
-	cb_draw_string("Some Chicken Eat Chicken", 0, 0, gui->font);
+	char string[1024];
+	sprintf(string, "fps: %i", (int)(1000.0f / (float)dt));
+	cb_draw_string(string, 0, 0, &gui->font);
 	
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();

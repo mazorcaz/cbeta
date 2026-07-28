@@ -52,7 +52,7 @@ void cb_window_resize(struct cb_window* window, int width, int height) {
 	window->aspect = (float)width / (float)height;
 	
 	glViewport(0, 0, window->width, window->height);
-	cb_set_perspective(100.0f, window->aspect, 0.1f, 100.0f);
+	cb_set_perspective(100.0f, window->aspect, 0.1f, 20000.0f);
 }
 
 void cb_window_handle(struct cb_window* window, SDL_Event* event) {
