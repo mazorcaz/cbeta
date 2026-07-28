@@ -19,8 +19,8 @@ bool cb_renderer_init(struct cb_renderer* renderer) {
 	
 	renderer->chunks = malloc(64 * 64 * sizeof(struct cb_render_chunk));
 	int i=0;
-	for (int z=0; z<16; z++) {
-		for (int x=0; x<16; x++,i++) {
+	for (int z=0; z<32; z++) {
+		for (int x=0; x<32; x++,i++) {
 			struct cb_render_chunk* chunk = renderer->chunks + i;
 			cb_render_chunk_init(chunk);
 			if (!chunk) {
@@ -28,8 +28,8 @@ bool cb_renderer_init(struct cb_renderer* renderer) {
 				return false;
 			}
 			
-			chunk->x = x-8;
-			chunk->z = z-8;
+			chunk->x = x-16;
+			chunk->z = z-16;
 			
 			int asdf = 0;
 			if (z == 15 || z == 0) asdf = 1;
@@ -45,9 +45,6 @@ bool cb_renderer_init(struct cb_renderer* renderer) {
 							material = CB_MATERIAL_GRASS;
 						}
 						
-						if (asdf == 1 && x % 3 == 0) material = CB_MATERIAL_AIR;
-						if (asdf == 2 && z % 3 == 0) material = CB_MATERIAL_AIR;
-						
 						chunk->blocks[j] = material;
 					}
 				}
@@ -55,8 +52,8 @@ bool cb_renderer_init(struct cb_renderer* renderer) {
 		}
 	}
 	i = 0;
-	for (int z=0; z<16; z++) {
-		for (int x=0; x<16; x++,i++) {
+	for (int z=0; z<32; z++) {
+		for (int x=0; x<32; x++,i++) {
 			struct cb_render_chunk* chunk = renderer->chunks + i;
 			
 			struct cb_render_chunk* front = NULL;
@@ -64,9 +61,9 @@ bool cb_renderer_init(struct cb_renderer* renderer) {
 			struct cb_render_chunk* right = NULL;
 			struct cb_render_chunk* left = NULL;
 			
-			if (z < 15) front = chunk + 16;
-			if (z > 0) back = chunk - 16;
-			if (x < 15) right = chunk + 1;
+			if (z < 31) front = chunk + 32;
+			if (z > 0) back = chunk - 32;
+			if (x < 31) right = chunk + 1;
 			if (x > 0) left = chunk - 1;
 			
 			cb_render_chunk_bake(chunk, &renderer->mesh, &renderer->terrain, front, back, right, left);
