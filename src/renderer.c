@@ -90,7 +90,7 @@ void cb_renderer_render(struct cb_renderer* renderer, struct cb_camera* camera) 
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0.1f);
 	
-	for (int i=0; i<64*64; i++) {
+	for (int i=0; i<32*32; i++) {
 		cb_render_chunk_render(renderer->chunks + i);
 	}
 }
