@@ -13,7 +13,7 @@ void cb_camera_init(struct cb_camera* camera) {
 	camera->yaw = -90.0f;
 	camera->pitch = 0.0f;
 
-	camera->speed = 8.0f;
+	camera->speed = 32.0f;
 	camera->sensitivity = 0.3f;
 }
 

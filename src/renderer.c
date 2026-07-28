@@ -19,8 +19,8 @@ bool cb_renderer_init(struct cb_renderer* renderer) {
 	
 	renderer->chunks = malloc(64 * 64 * sizeof(struct cb_render_chunk));
 	int i=0;
-	for (int z=0; z<64; z++) {
-		for (int x=0; x<64; x++,i++) {
+	for (int z=0; z<16; z++) {
+		for (int x=0; x<16; x++,i++) {
 			struct cb_render_chunk* chunk = renderer->chunks + i;
 			cb_render_chunk_init(chunk);
 			if (!chunk) {
@@ -28,8 +28,12 @@ bool cb_renderer_init(struct cb_renderer* renderer) {
 				return false;
 			}
 			
-			chunk->x = x-32;
-			chunk->z = z-32;
+			chunk->x = x-8;
+			chunk->z = z-8;
+			
+			int asdf = 0;
+			if (z == 15 || z == 0) asdf = 1;
+			if (x == 15 || x == 0) asdf = 2;
 			
 			int j=0;
 			for (int z=0; z<16; z++) {
@@ -41,6 +45,9 @@ bool cb_renderer_init(struct cb_renderer* renderer) {
 							material = CB_MATERIAL_GRASS;
 						}
 						
+						if (asdf == 1 && x % 3 == 0) material = CB_MATERIAL_AIR;
+						if (asdf == 2 && z % 3 == 0) material = CB_MATERIAL_AIR;
+						
 						chunk->blocks[j] = material;
 					}
 				}
@@ -48,8 +55,8 @@ bool cb_renderer_init(struct cb_renderer* renderer) {
 		}
 	}
 	i = 0;
-	for (int z=0; z<64; z++) {
-		for (int x=0; x<64; x++,i++) {
+	for (int z=0; z<16; z++) {
+		for (int x=0; x<16; x++,i++) {
 			struct cb_render_chunk* chunk = renderer->chunks + i;
 			
 			struct cb_render_chunk* front = NULL;
@@ -57,8 +64,8 @@ bool cb_renderer_init(struct cb_renderer* renderer) {
 			struct cb_render_chunk* right = NULL;
 			struct cb_render_chunk* left = NULL;
 			
-			if (z < 15) front = chunk + 64;
-			if (z > 0) back = chunk - 64;
+			if (z < 15) front = chunk + 16;
+			if (z > 0) back = chunk - 16;
 			if (x < 15) right = chunk + 1;
 			if (x > 0) left = chunk - 1;
 			
@@ -129,15 +136,15 @@ void cb_render_chunk_bake(struct cb_render_chunk* chunk, struct cb_mesh* mesh, s
 	int i=0;
 	for (int z=0; z<16; z++) {
 		for (int y=0; y<16; y++) {
-			for (int x=0; x<16; x++, i++) {
+			for (int x=0; x<16; x++, i++) { // i = x + y * 16 + z * 256
 				uint16_t block = chunk->blocks[i];
 				struct cb_material* material = cb_materials + block;
 				
 				if (material->render_type == CB_RENDER_TYPE_CUBE) {
-					if (z == 15 && front) {
+					if (z == 15 ? (!front || !cb_materials[front->blocks[i - 15 * 256]].solid) : !cb_materials[chunk->blocks[i + 256]].solid) {
 						cb_cube_front(mesh, x+xmin, y, z+zmin, material->offsets[0], material->offsets[1]);
 					}
-					if (z == 0 || !cb_materials[chunk->blocks[i - 256]].solid) {
+					if (z == 0 ? (!back || !cb_materials[back->blocks[i + 15 * 256]].solid) : !cb_materials[chunk->blocks[i - 256]].solid) {
 						cb_cube_back(mesh, x+xmin, y, z+zmin, material->offsets[2], material->offsets[3]);
 					}
 					if (y == 15 || !cb_materials[chunk->blocks[i + 16]].solid) {
@@ -146,10 +153,10 @@ void cb_render_chunk_bake(struct cb_render_chunk* chunk, struct cb_mesh* mesh, s
 					if (y == 0 || !cb_materials[chunk->blocks[i - 16]].solid) {
 						cb_cube_bottom(mesh, x+xmin, y, z+zmin, material->offsets[6], material->offsets[7]);
 					}
-					if (x == 15 || !cb_materials[chunk->blocks[i + 1]].solid) {
+					if (x == 15 ? (!right || !cb_materials[right->blocks[i - 15]].solid) : !cb_materials[chunk->blocks[i + 1]].solid) {
 						cb_cube_right(mesh, x+xmin, y, z+zmin, material->offsets[8], material->offsets[9]);
 					}
-					if (x == 0 || !cb_materials[chunk->blocks[i - 1]].solid) {
+					if (x == 0 ? (!left || !cb_materials[left->blocks[i + 15]].solid) : !cb_materials[chunk->blocks[i - 1]].solid) {
 						cb_cube_left(mesh, x+xmin, y, z+zmin, material->offsets[10], material->offsets[11]);
 					}
 				} else if (material->render_type == CB_RENDER_TYPE_CROSS) {
