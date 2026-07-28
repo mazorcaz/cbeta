@@ -34,7 +34,7 @@ static void cb_camera_handle_mouse(struct cb_camera* camera, float dx, float dy)
 static void cb_camera_handle_keys(struct cb_camera* camera, const uint8_t* keys, uint64_t dt) {
 	float rad_yaw = camera->yaw * (M_PI / 180.0f);
 
-	float rate = camera->speed * ( ((float)dt ) / 1000);
+	float rate = camera->speed * ( ((float)dt ) / (float)SDL_GetPerformanceFrequency());
 	
 	float forward_x = cosf(rad_yaw) * rate;
 	float forward_z = sinf(rad_yaw) * rate;

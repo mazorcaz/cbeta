@@ -37,7 +37,7 @@ void cb_gui_render(struct cb_gui* gui, struct cb_window* window, uint64_t dt) {
 	glLoadIdentity();
 	
 	char string[1024];
-	sprintf(string, "fps: %i", (int)(1000.0f / (float)dt));
+	sprintf(string, "fps: %i", (int)((float)SDL_GetPerformanceFrequency() / (float)dt));
 	cb_draw_string(string, 0, 0, &gui->font);
 	
 	glMatrixMode(GL_PROJECTION);

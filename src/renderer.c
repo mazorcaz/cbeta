@@ -17,16 +17,17 @@ bool cb_renderer_init(struct cb_renderer* renderer) {
 		return false;
 	}
 	
-	renderer->chunks = malloc(64 * 64 * sizeof(struct cb_render_chunk));
+	renderer->chunks = malloc(32 * 32 * sizeof(struct cb_render_chunk));
+	if (!renderer->chunks) {
+		printf("cb_renderer_init: malloc failed\n");
+		return false;
+	}
+	
 	int i=0;
 	for (int z=0; z<32; z++) {
 		for (int x=0; x<32; x++,i++) {
 			struct cb_render_chunk* chunk = renderer->chunks + i;
 			cb_render_chunk_init(chunk);
-			if (!chunk) {
-				printf("cb_renderer_init: failed to init render chunk\n");
-				return false;
-			}
 			
 			chunk->x = x-16;
 			chunk->z = z-16;

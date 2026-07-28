@@ -35,7 +35,7 @@ bool cb_window_init(struct cb_window* window) {
 		printf("cb_window_init: failed to get opengl context: %s\n", SDL_GetError());
 		return false;
 	}
-	SDL_GL_SetSwapInterval(1);
+	SDL_GL_SetSwapInterval(0);
 	
 	// properties
 	window->focused = false;

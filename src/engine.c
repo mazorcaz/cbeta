@@ -52,13 +52,13 @@ void cb_engine_run(struct cb_engine* engine) {
 	struct cb_gui* gui = &engine->gui;
 	struct cb_camera* camera = &engine->camera;
 	
-	engine->lt = SDL_GetTicks64();
+	engine->lt = SDL_GetPerformanceCounter();
 	engine->running = true;
 	
 	SDL_Event event;
 	while (engine->running) {
 		// time
-		uint64_t ct = SDL_GetTicks64();
+		uint64_t ct = SDL_GetPerformanceCounter();
 		uint64_t dt = ct - engine->lt;
 		engine->lt = ct;
 
