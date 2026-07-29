@@ -14,7 +14,7 @@ struct cb_segment {
 	int z;
 };
 
-void cb_segment_init(struct cb_segment* segment);
+void cb_segment_init(struct cb_segment* segment, int x, int z);
 void cb_segment_free(struct cb_segment* segment);
 void cb_segment_bake(struct cb_segment* segment, struct cb_mesh* mesh, struct cb_resource* texture,
 	struct cb_segment* front, struct cb_segment* back, struct cb_segment* right, struct cb_segment* left);

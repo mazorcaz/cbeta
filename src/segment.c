@@ -2,10 +2,28 @@
 
 #include <cbeta/segment.h>
 
+#include <stdint.h>
 #include <cbeta/material.h>
 
-void cb_segment_init(struct cb_segment* segment) {
+void cb_segment_init(struct cb_segment* segment, int x, int z) {
 	segment->list = 0;
+	segment->x = x;
+	segment->z = z;
+	
+	int i=0;
+	for (int z=0; z<16; z++) {
+		for (int y=0; y<16; y++) {
+			for (int x=0; x<16; x++, i++) {
+				uint16_t material = CB_MATERIAL_DIRT;
+				
+				if (y == 15) material = CB_MATERIAL_GRASS;
+				if (y < 10) material = CB_MATERIAL_STONE;
+				if (y == 0) material = CB_MATERIAL_BEDROCK;
+				
+				segment->blocks[i] = material;
+			}
+		}
+	}
 }
 
 void cb_segment_free(struct cb_segment* segment) {

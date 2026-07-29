@@ -27,29 +27,7 @@ bool cb_renderer_init(struct cb_renderer* renderer) {
 	for (int z=0; z<32; z++) {
 		for (int x=0; x<32; x++,i++) {
 			struct cb_segment* segment = renderer->segments + i;
-			cb_segment_init(segment);
-			
-			segment->x = x-16;
-			segment->z = z-16;
-			
-			int asdf = 0;
-			if (z == 15 || z == 0) asdf = 1;
-			if (x == 15 || x == 0) asdf = 2;
-			
-			int j=0;
-			for (int z=0; z<16; z++) {
-				for (int y=0; y<16; y++) {
-					for (int x=0; x<16; x++,j++) {
-						uint16_t material = CB_MATERIAL_DIRT;
-						
-						if (y == 15) {
-							material = CB_MATERIAL_GRASS;
-						}
-						
-						segment->blocks[j] = material;
-					}
-				}
-			}
+			cb_segment_init(segment, x-16, z-16);
 		}
 	}
 	i = 0;
