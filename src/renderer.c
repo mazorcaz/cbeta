@@ -17,8 +17,8 @@ bool cb_renderer_init(struct cb_renderer* renderer) {
 		return false;
 	}
 	
-	renderer->chunks = malloc(32 * 32 * sizeof(struct cb_render_chunk));
-	if (!renderer->chunks) {
+	renderer->segments = malloc(32 * 32 * sizeof(struct cb_segment));
+	if (!renderer->segments) {
 		printf("cb_renderer_init: malloc failed\n");
 		return false;
 	}
@@ -26,11 +26,11 @@ bool cb_renderer_init(struct cb_renderer* renderer) {
 	int i=0;
 	for (int z=0; z<32; z++) {
 		for (int x=0; x<32; x++,i++) {
-			struct cb_render_chunk* chunk = renderer->chunks + i;
-			cb_render_chunk_init(chunk);
+			struct cb_segment* segment = renderer->segments + i;
+			cb_segment_init(segment);
 			
-			chunk->x = x-16;
-			chunk->z = z-16;
+			segment->x = x-16;
+			segment->z = z-16;
 			
 			int asdf = 0;
 			if (z == 15 || z == 0) asdf = 1;
@@ -46,7 +46,7 @@ bool cb_renderer_init(struct cb_renderer* renderer) {
 							material = CB_MATERIAL_GRASS;
 						}
 						
-						chunk->blocks[j] = material;
+						segment->blocks[j] = material;
 					}
 				}
 			}
@@ -55,19 +55,19 @@ bool cb_renderer_init(struct cb_renderer* renderer) {
 	i = 0;
 	for (int z=0; z<32; z++) {
 		for (int x=0; x<32; x++,i++) {
-			struct cb_render_chunk* chunk = renderer->chunks + i;
+			struct cb_segment* segment = renderer->segments + i;
 			
-			struct cb_render_chunk* front = NULL;
-			struct cb_render_chunk* back = NULL;
-			struct cb_render_chunk* right = NULL;
-			struct cb_render_chunk* left = NULL;
+			struct cb_segment* front = NULL;
+			struct cb_segment* back = NULL;
+			struct cb_segment* right = NULL;
+			struct cb_segment* left = NULL;
 			
-			if (z < 31) front = chunk + 32;
-			if (z > 0) back = chunk - 32;
-			if (x < 31) right = chunk + 1;
-			if (x > 0) left = chunk - 1;
+			if (z < 31) front = segment + 32;
+			if (z > 0) back = segment - 32;
+			if (x < 31) right = segment + 1;
+			if (x > 0) left = segment - 1;
 			
-			cb_render_chunk_bake(chunk, &renderer->mesh, &renderer->terrain, front, back, right, left);
+			cb_segment_bake(segment, &renderer->mesh, &renderer->terrain, front, back, right, left);
 			
 			printf("%i%% done baking\n", i / ((32*32)/100));
 		}
@@ -79,7 +79,7 @@ bool cb_renderer_init(struct cb_renderer* renderer) {
 void cb_renderer_free(struct cb_renderer* renderer) {
 	cb_resource_free(&renderer->terrain);
 	cb_mesh_free(&renderer->mesh);
-	cb_render_chunk_free(renderer->chunks);
+	cb_segment_free(renderer->segments);
 }
 
 void cb_renderer_render(struct cb_renderer* renderer, struct cb_camera* camera) {
@@ -94,83 +94,6 @@ void cb_renderer_render(struct cb_renderer* renderer, struct cb_camera* camera) 
 	glAlphaFunc(GL_GREATER, 0.1f);
 	
 	for (int i=0; i<32*32; i++) {
-		cb_render_chunk_render(renderer->chunks + i);
+		cb_segment_render(renderer->segments + i);
 	}
-}
-
-void cb_render_chunk_init(struct cb_render_chunk* chunk) {
-	chunk->list = 0;
-}
-
-void cb_render_chunk_free(struct cb_render_chunk* chunk) {
-	if (chunk->list) glDeleteLists(chunk->list, 1);
-	chunk->list = 0;
-}
-
-void cb_render_chunk_bake(struct cb_render_chunk* chunk, struct cb_mesh* mesh, struct cb_resource* texture,
-	struct cb_render_chunk* front, struct cb_render_chunk* back, struct cb_render_chunk* right, struct cb_render_chunk* left) {
-		
-	if (chunk->list) glDeleteLists(chunk->list, 1);
-	chunk->list = glGenLists(1);
-	
-	cb_mesh_reset(mesh);
-	
-	int xmin = chunk->x * 16;
-	int zmin = chunk->z * 16;
-	int xmax = xmin + 16;
-	int zmax = zmin + 16;
-	
-	int i=0;
-	for (int z=0; z<16; z++) {
-		for (int y=0; y<16; y++) {
-			for (int x=0; x<16; x++, i++) { // i = x + y * 16 + z * 256
-				uint16_t block = chunk->blocks[i];
-				struct cb_material* material = cb_materials + block;
-				
-				if (material->render_type == CB_RENDER_TYPE_CUBE) {
-					if (z == 15 ? (!front || !cb_materials[front->blocks[i - 15 * 256]].solid) : !cb_materials[chunk->blocks[i + 256]].solid) {
-						cb_cube_front(mesh, x+xmin, y, z+zmin, material->offsets[0], material->offsets[1]);
-					}
-					if (z == 0 ? (!back || !cb_materials[back->blocks[i + 15 * 256]].solid) : !cb_materials[chunk->blocks[i - 256]].solid) {
-						cb_cube_back(mesh, x+xmin, y, z+zmin, material->offsets[2], material->offsets[3]);
-					}
-					if (y == 15 || !cb_materials[chunk->blocks[i + 16]].solid) {
-						cb_cube_top(mesh, x+xmin, y, z+zmin, material->offsets[4], material->offsets[5]);
-					}
-					if (y == 0 || !cb_materials[chunk->blocks[i - 16]].solid) {
-						cb_cube_bottom(mesh, x+xmin, y, z+zmin, material->offsets[6], material->offsets[7]);
-					}
-					if (x == 15 ? (!right || !cb_materials[right->blocks[i - 15]].solid) : !cb_materials[chunk->blocks[i + 1]].solid) {
-						cb_cube_right(mesh, x+xmin, y, z+zmin, material->offsets[8], material->offsets[9]);
-					}
-					if (x == 0 ? (!left || !cb_materials[left->blocks[i + 15]].solid) : !cb_materials[chunk->blocks[i - 1]].solid) {
-						cb_cube_left(mesh, x+xmin, y, z+zmin, material->offsets[10], material->offsets[11]);
-					}
-				} else if (material->render_type == CB_RENDER_TYPE_CROSS) {
-					cb_cross(mesh, x+xmin, y, z+zmin, material->offsets[0], material->offsets[1]);
-				}
-			}
-		}
-	}
-	
-	glNewList(chunk->list, GL_COMPILE);
-
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glBindTexture(GL_TEXTURE_2D, texture->id);
-	
-	glVertexPointer(3, GL_FLOAT, 0, mesh->pbuffer);
-	glTexCoordPointer(2, GL_FLOAT, 0, mesh->tbuffer);
-	
-	glDrawArrays(GL_QUADS, 0, mesh->count);
-	
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	
-	glEndList();
-}
-
-void cb_render_chunk_render(struct cb_render_chunk* chunk) {
-	//glTranslatef(-chunk->x * 16.0f, -8.0f, -chunk->z * 16.0f);
-	if (chunk->list) glCallList(chunk->list);
 }
