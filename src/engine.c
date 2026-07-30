@@ -20,8 +20,8 @@ bool cb_engine_init(struct cb_engine* engine) {
 		return false;
 	}
 	
-	if (!cb_renderer_init(&engine->renderer)) {
-		printf("cb_engine_init: failed to init renderer\n");
+	if (!cb_world_init(&engine->world)) {
+		printf("cb_engine_init: failed to init world\n");
 		return false;
 	}
 	
@@ -41,14 +41,14 @@ bool cb_engine_init(struct cb_engine* engine) {
 
 void cb_engine_free(struct cb_engine* engine) {
 	cb_window_free(&engine->window);
-	cb_renderer_free(&engine->renderer);
+	cb_world_free(&engine->world);
 	cb_gui_free(&engine->gui);
 	cb_camera_free(&engine->camera);
 }
 
 void cb_engine_run(struct cb_engine* engine) {
 	struct cb_window* window = &engine->window;
-	struct cb_renderer* renderer = &engine->renderer;
+	struct cb_world* world = &engine->world;
 	struct cb_gui* gui = &engine->gui;
 	struct cb_camera* camera = &engine->camera;
 	
@@ -75,7 +75,7 @@ void cb_engine_run(struct cb_engine* engine) {
 		if (window->focused) cb_camera_update(camera, dt);
 
 		// render
-		cb_renderer_render(renderer, camera);
+		cb_world_render(world, camera);
 		cb_gui_render(gui, window, dt);
 		
 		SDL_GL_SwapWindow(window->window);

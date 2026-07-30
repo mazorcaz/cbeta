@@ -7,12 +7,12 @@
 #include <stdbool.h>
 #include <cbeta/window.h>
 #include <cbeta/camera.h>
-#include <cbeta/renderer.h>
+#include <cbeta/world.h>
 #include <cbeta/gui.h>
 
 struct cb_engine {
 	struct cb_window window;
-	struct cb_renderer renderer;
+	struct cb_world world;
 	struct cb_gui gui;
 	
 	uint64_t lt;

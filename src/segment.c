@@ -4,10 +4,13 @@
 
 #include <stdint.h>
 #include <cbeta/material.h>
+#include <cbeta/chunk.h>
 
-void cb_segment_init(struct cb_segment* segment, int x, int z) {
+void cb_segment_init(struct cb_segment* segment, int x, int y, int z) {
+	segment->dirty = true;
 	segment->list = 0;
 	segment->x = x;
+	segment->y = y;
 	segment->z = z;
 	
 	int i=0;
@@ -31,8 +34,7 @@ void cb_segment_free(struct cb_segment* segment) {
 	segment->list = 0;
 }
 
-void cb_segment_bake(struct cb_segment* segment, struct cb_mesh* mesh, struct cb_resource* texture,
-	struct cb_segment* front, struct cb_segment* back, struct cb_segment* right, struct cb_segment* left) {
+void cb_segment_bake(struct cb_segment* segment, struct cb_mesh* mesh, struct cb_resource* texture, struct cb_world* world) {
 		
 	if (segment->list) glDeleteLists(segment->list, 1);
 	segment->list = glGenLists(1);
@@ -42,18 +44,32 @@ void cb_segment_bake(struct cb_segment* segment, struct cb_mesh* mesh, struct cb
 	int xmin = segment->x * 16;
 	int zmin = segment->z * 16;
 	
+	struct cb_segment* front = cb_world_get_chunk(world, segment->x, segment->z + 1)->segments + segment->y;
+	struct cb_segment* back = cb_world_get_chunk(world, segment->x, segment->z - 1)->segments + segment->y;
+	struct cb_segment* right = cb_world_get_chunk(world, segment->x + 1, segment->z)->segments + segment->y;
+	struct cb_segment* left = cb_world_get_chunk(world, segment->x - 1, segment->z)->segments + segment->y;
+	
+	printf("%s, %s, %s, %s\n", front ? "front" : "NULL", back ? "back" : "NULL", right ? "right" : "NULL", left ? "left" : "NULL");
+	if (back) {
+		//printf("back->blocks[15 * 256] = %i\n", back->blocks);
+		return;
+	}
+	
 	int i=0;
 	for (int z=0; z<16; z++) {
 		for (int y=0; y<16; y++) {
 			for (int x=0; x<16; x++, i++) { // i = x + y * 16 + z * 256
 				uint16_t block = segment->blocks[i];
 				struct cb_material* material = cb_materials + block;
+				printf("calculating block %i, %i, %i material %s\n", x, y, z, material->name);
 				
 				if (material->render_type == CB_RENDER_TYPE_CUBE) {
 					if (z == 15 ? (!front || !cb_materials[front->blocks[i - 15 * 256]].solid) : !cb_materials[segment->blocks[i + 256]].solid) {
 						cb_cube_front(mesh, x+xmin, y, z+zmin, material->offsets[0], material->offsets[1]);
 					}
 					if (z == 0 ? (!back || !cb_materials[back->blocks[i + 15 * 256]].solid) : !cb_materials[segment->blocks[i - 256]].solid) {
+						printf("back\n");
+						return;
 						cb_cube_back(mesh, x+xmin, y, z+zmin, material->offsets[2], material->offsets[3]);
 					}
 					if (y == 15 || !cb_materials[segment->blocks[i + 16]].solid) {
@@ -74,6 +90,7 @@ void cb_segment_bake(struct cb_segment* segment, struct cb_mesh* mesh, struct cb
 			}
 		}
 	}
+	printf("done calculating\n");
 	
 	glNewList(segment->list, GL_COMPILE);
 
@@ -90,9 +107,14 @@ void cb_segment_bake(struct cb_segment* segment, struct cb_mesh* mesh, struct cb
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	
 	glEndList();
+	
+	segment->dirty = false;
 }
 
-void cb_segment_render(struct cb_segment* segment) {
-	//glTranslatef(-segment->x * 16.0f, -8.0f, -segment->z * 16.0f);
-	if (segment->list) glCallList(segment->list);
+void cb_segment_render(struct cb_segment* segment, struct cb_mesh* mesh, struct cb_resource* texture, struct cb_world* world) {
+	if (segment->dirty) {
+		printf("dirty segment: %i, %i, %i\n", segment->x, segment->y, segment->z);
+		cb_segment_bake(segment, mesh, texture, world);
+	}
+	glCallList(segment->list);
 }

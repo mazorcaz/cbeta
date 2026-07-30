@@ -27,7 +27,7 @@ bool cb_renderer_init(struct cb_renderer* renderer) {
 	for (int z=0; z<32; z++) {
 		for (int x=0; x<32; x++,i++) {
 			struct cb_segment* segment = renderer->segments + i;
-			cb_segment_init(segment, x-16, z-16);
+			//cb_segment_init(segment, x-16, z-16);
 		}
 	}
 	i = 0;
@@ -45,7 +45,7 @@ bool cb_renderer_init(struct cb_renderer* renderer) {
 			if (x < 31) right = segment + 1;
 			if (x > 0) left = segment - 1;
 			
-			cb_segment_bake(segment, &renderer->mesh, &renderer->terrain, front, back, right, left);
+			//cb_segment_bake(segment, &renderer->mesh, &renderer->terrain, front, back, right, left);
 			
 			printf("%i%% done baking\n", i / ((32*32)/100));
 		}
@@ -72,6 +72,6 @@ void cb_renderer_render(struct cb_renderer* renderer, struct cb_camera* camera) 
 	glAlphaFunc(GL_GREATER, 0.1f);
 	
 	for (int i=0; i<32*32; i++) {
-		cb_segment_render(renderer->segments + i);
+		//cb_segment_render(renderer->segments + i);
 	}
 }
