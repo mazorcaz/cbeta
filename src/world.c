@@ -31,6 +31,17 @@ bool cb_world_init(struct cb_world* world) {
 			cb_world_set_chunk(world, x, z, chunk);
 		}
 	}
+	
+	for (int x=-8; x<8; x++) {
+		for (int z=-8; z<8; z++) {
+			struct cb_chunk* chunk = cb_world_get_chunk(world, x, z);
+			for (int i=0; i<8; i++) {
+				cb_chunk_mesh_segment(chunk, i, &world->mesh, world);
+				cb_chunk_bake_segment(chunk, i, &world->mesh, &world->terrain);
+			}
+		}
+	}
+	
 	return true;
 }
 
@@ -113,7 +124,7 @@ void cb_world_render(struct cb_world* world, struct cb_camera* camera) {
 	for (int i=0; i<4096; i++) {
 		struct cb_chunk* chunk = world->hashmap[i];
 		while (chunk != NULL) {
-			cb_chunk_render(chunk, &world->mesh, &world->terrain, world);
+			cb_chunk_render(chunk);
 			chunk = chunk->next;
 		}
 	}
