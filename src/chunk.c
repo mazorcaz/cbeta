@@ -18,9 +18,7 @@ void cb_chunk_free(struct cb_chunk* chunk) {
 }
 
 void cb_chunk_render(struct cb_chunk* chunk, struct cb_mesh* mesh, struct cb_resource* texture, struct cb_world* world) {
-	printf("cb_chunk_render: %i, %i\n", chunk->x, chunk->z);
 	for (int i=0; i<8; i++) {
-		printf("calling cb_segment_render: %i\n", i);
 		cb_segment_render(chunk->segments + i, mesh, texture, world);
 	}
 }

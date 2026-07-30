@@ -16,6 +16,7 @@ int main() {
 	cb_engine_run(engine);
 	
 	cb_engine_free(engine);
+	free(engine);
 
 	return 0;
 }

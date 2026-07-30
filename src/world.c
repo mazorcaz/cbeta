@@ -6,6 +6,10 @@
 #include <cbeta/chunk.h>
 
 bool cb_world_init(struct cb_world* world) {
+	for (int i=0; i<4096; i++) {
+		world->hashmap[i] = NULL;
+	}
+	
 	if (!cb_mesh_init(&world->mesh)) {
 		printf("cb_world_init: failed to init mesh\n");
 		return false;
@@ -14,10 +18,6 @@ bool cb_world_init(struct cb_world* world) {
 	if (!cb_resource_load(&world->terrain, "resources/terrain.png")) {
 		printf("cb_world_init: failed to load terrain texture\n");
 		return false;
-	}
-	
-	for (int i=0; i<4096; i++) {
-		world->hashmap[i] = NULL;
 	}
 	
 	for (int x=-2; x<2; x++) {
@@ -59,7 +59,11 @@ struct cb_chunk* cb_world_get_chunk(struct cb_world* world, int x, int z) {
 	hash &= 4095;
 	
 	struct cb_chunk* chunk = world->hashmap[hash];
-	if (chunk == NULL) return NULL;
+	printf("cb_wolrd_get_chunk: original chunk value is %p for %i, %i\n", chunk, x, z);
+	if (chunk == NULL) {
+		printf("cb_world_get_chunk: null hashmap value %i, %i\n", x, z);
+		return NULL;
+	}
 	while (chunk->x != x || chunk->z != z) {
 		chunk = chunk->next;
 		if (chunk == NULL) return NULL;
@@ -112,7 +116,6 @@ void cb_world_render(struct cb_world* world, struct cb_camera* camera) {
 	glAlphaFunc(GL_GREATER, 0.1f);
 	
 	for (int i=0; i<4096; i++) {
-		printf("rendering #%i\n", i);
 		struct cb_chunk* chunk = world->hashmap[i];
 		while (chunk != NULL) {
 			cb_chunk_render(chunk, &world->mesh, &world->terrain, world);

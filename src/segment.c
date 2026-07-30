@@ -44,16 +44,18 @@ void cb_segment_bake(struct cb_segment* segment, struct cb_mesh* mesh, struct cb
 	int xmin = segment->x * 16;
 	int zmin = segment->z * 16;
 	
-	struct cb_segment* front = cb_world_get_chunk(world, segment->x, segment->z + 1)->segments + segment->y;
-	struct cb_segment* back = cb_world_get_chunk(world, segment->x, segment->z - 1)->segments + segment->y;
-	struct cb_segment* right = cb_world_get_chunk(world, segment->x + 1, segment->z)->segments + segment->y;
-	struct cb_segment* left = cb_world_get_chunk(world, segment->x - 1, segment->z)->segments + segment->y;
+	struct cb_segment* front = NULL;
+	struct cb_segment* back = NULL;
+	struct cb_segment* right = NULL;
+	struct cb_segment* left = NULL;
+	
+	struct cb_chunk* chunk;
+	if (chunk = cb_world_get_chunk(world, segment->x, segment->z + 1)) front = chunk->segments + segment->y;
+	if (chunk = cb_world_get_chunk(world, segment->x, segment->z - 1)) back = chunk->segments + segment->y;
+	if (chunk = cb_world_get_chunk(world, segment->x + 1, segment->z)) right = chunk->segments + segment->y;
+	if (chunk = cb_world_get_chunk(world, segment->x - 1, segment->z)) left = chunk->segments + segment->y;
 	
 	printf("%s, %s, %s, %s\n", front ? "front" : "NULL", back ? "back" : "NULL", right ? "right" : "NULL", left ? "left" : "NULL");
-	if (back) {
-		//printf("back->blocks[15 * 256] = %i\n", back->blocks);
-		return;
-	}
 	
 	int i=0;
 	for (int z=0; z<16; z++) {
@@ -61,15 +63,12 @@ void cb_segment_bake(struct cb_segment* segment, struct cb_mesh* mesh, struct cb
 			for (int x=0; x<16; x++, i++) { // i = x + y * 16 + z * 256
 				uint16_t block = segment->blocks[i];
 				struct cb_material* material = cb_materials + block;
-				printf("calculating block %i, %i, %i material %s\n", x, y, z, material->name);
 				
 				if (material->render_type == CB_RENDER_TYPE_CUBE) {
 					if (z == 15 ? (!front || !cb_materials[front->blocks[i - 15 * 256]].solid) : !cb_materials[segment->blocks[i + 256]].solid) {
 						cb_cube_front(mesh, x+xmin, y, z+zmin, material->offsets[0], material->offsets[1]);
 					}
 					if (z == 0 ? (!back || !cb_materials[back->blocks[i + 15 * 256]].solid) : !cb_materials[segment->blocks[i - 256]].solid) {
-						printf("back\n");
-						return;
 						cb_cube_back(mesh, x+xmin, y, z+zmin, material->offsets[2], material->offsets[3]);
 					}
 					if (y == 15 || !cb_materials[segment->blocks[i + 16]].solid) {
