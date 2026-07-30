@@ -31,6 +31,7 @@ bool cb_engine_init(struct cb_engine* engine) {
 	}
 	
 	cb_camera_init(&engine->camera);
+	engine->camera.y = 130;
 	
 	printf("cbeta initialized successfully\n");
 	printf("Video Driver: %s\n", SDL_GetCurrentVideoDriver());

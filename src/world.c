@@ -20,8 +20,8 @@ bool cb_world_init(struct cb_world* world) {
 		return false;
 	}
 	
-	for (int x=-2; x<2; x++) {
-		for (int z=-2; z<2; z++) {
+	for (int x=-8; x<8; x++) {
+		for (int z=-8; z<8; z++) {
 			struct cb_chunk* chunk = malloc(sizeof(struct cb_chunk));
 			if (chunk == NULL) {
 				printf("cb_world_init: malloc failed\n");
@@ -29,7 +29,6 @@ bool cb_world_init(struct cb_world* world) {
 			}
 			cb_chunk_init(chunk, x, z);
 			cb_world_set_chunk(world, x, z, chunk);
-			printf("made chunk %i, %i\n", x, z);
 		}
 	}
 	return true;
@@ -77,7 +76,6 @@ void cb_world_set_chunk(struct cb_world* world, int x, int z, struct cb_chunk* c
 	hash &= 4095;
 	
 	struct cb_chunk** dest = world->hashmap + hash;
-	if (*dest == NULL) printf("NULL HASHMAP[%i] ENTRY: %i, %i\n", hash, x, z);
 	while (*dest != NULL) {
 		if ((*dest)->x == x && (*dest)->z == z) {
 			struct cb_chunk* old = *dest;
@@ -96,7 +94,6 @@ void cb_world_set_chunk(struct cb_world* world, int x, int z, struct cb_chunk* c
 		dest = &(*dest)->next;
 	}
 	if (chunk != NULL) {
-		printf("hashmap[%i] entry: %i, %i\n", hash, x, z);
 		chunk->next = NULL;
 		*dest = chunk;
 	}
