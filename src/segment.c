@@ -41,11 +41,14 @@ void cb_segment_bake(struct cb_segment* segment, struct cb_mesh* mesh, struct cb
 	
 	cb_mesh_reset(mesh);
 	
-	int xmin = segment->x * 16;
-	int zmin = segment->z * 16;
+	int xb = segment->x * 16;
+	int yb = segment->y * 16;
+	int zb = segment->z * 16;
 	
 	struct cb_segment* front = NULL;
 	struct cb_segment* back = NULL;
+	struct cb_segment* top = NULL;
+	struct cb_segment* bottom = NULL;
 	struct cb_segment* right = NULL;
 	struct cb_segment* left = NULL;
 	
@@ -54,8 +57,8 @@ void cb_segment_bake(struct cb_segment* segment, struct cb_mesh* mesh, struct cb
 	if (chunk = cb_world_get_chunk(world, segment->x, segment->z - 1)) back = chunk->segments + segment->y;
 	if (chunk = cb_world_get_chunk(world, segment->x + 1, segment->z)) right = chunk->segments + segment->y;
 	if (chunk = cb_world_get_chunk(world, segment->x - 1, segment->z)) left = chunk->segments + segment->y;
-	
-	printf("%s, %s, %s, %s\n", front ? "front" : "NULL", back ? "back" : "NULL", right ? "right" : "NULL", left ? "left" : "NULL");
+	if (segment->y < 7) top = segment + 1;
+	if (segment->y > 0) bottom = segment - 1;
 	
 	int i=0;
 	for (int z=0; z<16; z++) {
@@ -66,30 +69,29 @@ void cb_segment_bake(struct cb_segment* segment, struct cb_mesh* mesh, struct cb
 				
 				if (material->render_type == CB_RENDER_TYPE_CUBE) {
 					if (z == 15 ? (!front || !cb_materials[front->blocks[i - 15 * 256]].solid) : !cb_materials[segment->blocks[i + 256]].solid) {
-						cb_cube_front(mesh, x+xmin, y, z+zmin, material->offsets[0], material->offsets[1]);
+						cb_cube_front(mesh, x+xb, y+yb, z+zb, material->offsets[0], material->offsets[1]);
 					}
 					if (z == 0 ? (!back || !cb_materials[back->blocks[i + 15 * 256]].solid) : !cb_materials[segment->blocks[i - 256]].solid) {
-						cb_cube_back(mesh, x+xmin, y, z+zmin, material->offsets[2], material->offsets[3]);
+						cb_cube_back(mesh, x+xb, y+yb, z+zb, material->offsets[2], material->offsets[3]);
 					}
-					if (y == 15 || !cb_materials[segment->blocks[i + 16]].solid) {
-						cb_cube_top(mesh, x+xmin, y, z+zmin, material->offsets[4], material->offsets[5]);
+					if (y == 15 ? (!top || !cb_materials[top->blocks[i - 15 * 16]].solid) : !cb_materials[segment->blocks[i + 16]].solid) {
+						cb_cube_top(mesh, x+xb, y+yb, z+zb, material->offsets[4], material->offsets[5]);
 					}
-					if (y == 0 || !cb_materials[segment->blocks[i - 16]].solid) {
-						cb_cube_bottom(mesh, x+xmin, y, z+zmin, material->offsets[6], material->offsets[7]);
+					if (y == 0 ? (!bottom || !cb_materials[bottom->blocks[i + 15 * 16]].solid) : !cb_materials[segment->blocks[i - 16]].solid) {
+						cb_cube_bottom(mesh, x+xb, y+yb, z+zb, material->offsets[6], material->offsets[7]);
 					}
 					if (x == 15 ? (!right || !cb_materials[right->blocks[i - 15]].solid) : !cb_materials[segment->blocks[i + 1]].solid) {
-						cb_cube_right(mesh, x+xmin, y, z+zmin, material->offsets[8], material->offsets[9]);
+						cb_cube_right(mesh, x+xb, y+yb, z+zb, material->offsets[8], material->offsets[9]);
 					}
 					if (x == 0 ? (!left || !cb_materials[left->blocks[i + 15]].solid) : !cb_materials[segment->blocks[i - 1]].solid) {
-						cb_cube_left(mesh, x+xmin, y, z+zmin, material->offsets[10], material->offsets[11]);
+						cb_cube_left(mesh, x+xb, y+yb, z+zb, material->offsets[10], material->offsets[11]);
 					}
 				} else if (material->render_type == CB_RENDER_TYPE_CROSS) {
-					cb_cross(mesh, x+xmin, y, z+zmin, material->offsets[0], material->offsets[1]);
+					cb_cross(mesh, x+xb, y+yb, z+zb, material->offsets[0], material->offsets[1]);
 				}
 			}
 		}
 	}
-	printf("done calculating\n");
 	
 	glNewList(segment->list, GL_COMPILE);
 
@@ -112,7 +114,6 @@ void cb_segment_bake(struct cb_segment* segment, struct cb_mesh* mesh, struct cb
 
 void cb_segment_render(struct cb_segment* segment, struct cb_mesh* mesh, struct cb_resource* texture, struct cb_world* world) {
 	if (segment->dirty) {
-		printf("dirty segment: %i, %i, %i\n", segment->x, segment->y, segment->z);
 		cb_segment_bake(segment, mesh, texture, world);
 	}
 	glCallList(segment->list);

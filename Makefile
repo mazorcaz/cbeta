@@ -2,8 +2,8 @@
 
 # flags
 CC := gcc
-CFLAGS := -g -fsanitize=address -Wall -Wextra -Iinclude $(shell sdl2-config --cflags)
-LDLIBS := -fsanitize=address -lSDL2 -lSDL2_image -lGL -lm
+CFLAGS := -g -Wall -Wextra -Iinclude $(shell sdl2-config --cflags)
+LDLIBS := -lSDL2 -lSDL2_image -lGL -lm
 
 # files
 SRCS := $(shell find src/ -name "*.c")

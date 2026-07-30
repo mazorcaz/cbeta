@@ -59,9 +59,7 @@ struct cb_chunk* cb_world_get_chunk(struct cb_world* world, int x, int z) {
 	hash &= 4095;
 	
 	struct cb_chunk* chunk = world->hashmap[hash];
-	printf("cb_wolrd_get_chunk: original chunk value is %p for %i, %i\n", chunk, x, z);
 	if (chunk == NULL) {
-		printf("cb_world_get_chunk: null hashmap value %i, %i\n", x, z);
 		return NULL;
 	}
 	while (chunk->x != x || chunk->z != z) {
