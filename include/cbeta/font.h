@@ -14,4 +14,7 @@ void cb_font_bake();
 int cb_draw_char(char c, int x, int yt, struct cb_resource* font);
 int cb_draw_string(const char* s, int x, int y, struct cb_resource* font);
 
+int cb_getlen_char(char c);
+int cb_getlen_string(const char* s);
+
 #endif

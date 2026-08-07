@@ -5,12 +5,12 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <cbeta/camera.h>
 #include <cbeta/resource.h>
 #include <cbeta/geometry.h>
 
 struct cb_chunk;
-struct cb_segment;
+struct cb_subchunk;
+struct cb_camera;
 
 struct cb_world {
 	struct cb_mesh mesh;
@@ -23,6 +23,11 @@ void cb_world_free(struct cb_world* world);
 
 struct cb_chunk* cb_world_get_chunk(struct cb_world* world, int x, int z);
 void cb_world_set_chunk(struct cb_world*, int x, int z, struct cb_chunk* chunk);
+
+struct cb_subchunk* cb_world_get_subchunk(struct cb_world* world, int x, int y, int z);
+
+uint16_t cb_world_get_block(struct cb_world* world, int x, int y, int z);
+void cb_world_set_block(struct cb_world* world, int x, int y, int z, uint16_t block);
 
 void cb_world_render(struct cb_world* world, struct cb_camera* camera);
 

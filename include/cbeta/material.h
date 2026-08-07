@@ -21,6 +21,17 @@
 #define CB_MATERIAL_SPRUCE_SAPLING ((6<<4)+1)
 #define CB_MATERIAL_BIRCH_SAPLING ((6<<4)+2)
 #define CB_MATERIAL_BEDROCK ((7<<4)+0)
+#define CB_MATERIAL_SAND ((12<<4)+0)
+#define CB_MATERIAL_GRAVEL ((13<<4)+0)
+#define CB_MATERIAL_GOLD_ORE ((14<<4)+0)
+#define CB_MATERIAL_IRON_ORE ((15<<4)+0)
+#define CB_MATERIAL_COAL_ORE ((16<<4)+0)
+#define CB_MATERIAL_OAK_LOG ((17<<4)+0)
+#define CB_MATERIAL_SPRUCE_LOG ((17<<4)+1)
+#define CB_MATERIAL_BIRCH_LOG ((17<<4)+2)
+#define CB_MATERIAL_OAK_LEAVES ((18<<4)+0)
+#define CB_MATERIAL_SPRUCE_LEAVES ((18<<4)+1)
+#define CB_MATERIAL_BIRCH_LEAVES ((18<<4)+2)
 #define CB_MATERIAL_FENCE ((85<<4)+0)
 
 struct cb_material {

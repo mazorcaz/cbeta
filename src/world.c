@@ -4,6 +4,8 @@
 
 #include <stdlib.h>
 #include <cbeta/chunk.h>
+#include <cbeta/camera.h>
+#include <cbeta/subchunk.h>
 
 bool cb_world_init(struct cb_world* world) {
 	for (int i=0; i<4096; i++) {
@@ -20,8 +22,8 @@ bool cb_world_init(struct cb_world* world) {
 		return false;
 	}
 	
-	for (int x=-8; x<8; x++) {
-		for (int z=-8; z<8; z++) {
+	for (int x=-4; x<4; x++) {
+		for (int z=-4; z<4; z++) {
 			struct cb_chunk* chunk = malloc(sizeof(struct cb_chunk));
 			if (chunk == NULL) {
 				printf("cb_world_init: malloc failed\n");
@@ -32,13 +34,10 @@ bool cb_world_init(struct cb_world* world) {
 		}
 	}
 	
-	for (int x=-8; x<8; x++) {
-		for (int z=-8; z<8; z++) {
+	for (int x=-4; x<4; x++) {
+		for (int z=-4; z<4; z++) {
 			struct cb_chunk* chunk = cb_world_get_chunk(world, x, z);
-			for (int i=0; i<8; i++) {
-				cb_chunk_mesh_segment(chunk, i, &world->mesh, world);
-				cb_chunk_bake_segment(chunk, i, &world->mesh, &world->terrain);
-			}
+			if (chunk) cb_chunk_bake(chunk, world);
 		}
 	}
 	
@@ -110,7 +109,24 @@ void cb_world_set_chunk(struct cb_world* world, int x, int z, struct cb_chunk* c
 	}
 }
 
+struct cb_subchunk* cb_world_get_subchunk(struct cb_world* world, int x, int y, int z) {
+	struct cb_chunk* chunk = cb_world_get_chunk(world, x, z);
+	if (!chunk) return NULL;
+	return cb_chunk_get_subchunk(chunk, y);
+}
+
+uint16_t cb_world_get_block(struct cb_world* world, int x, int y, int z) {
+	struct cb_subchunk* chunk = cb_world_get_subchunk(world, x / 16, y / 16, z / 16);
+	return chunk->blocks[(x & 15) + (y & 15) * 16 + (z & 15) * 256];
+}
+
+void cb_world_set_block(struct cb_world* world, int x, int y, int z, uint16_t block) {
+	struct cb_subchunk* chunk = cb_world_get_subchunk(world, x / 16, y / 16, z / 16);
+	chunk->blocks[(x & 15) + (y & 15) * 16 + (z & 15) * 256] = block;
+}
+
 void cb_world_render(struct cb_world* world, struct cb_camera* camera) {
+	glClearColor(0.6f, 0.8f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	cb_camera_apply(camera);

@@ -77,7 +77,7 @@ void cb_engine_run(struct cb_engine* engine) {
 
 		// render
 		cb_world_render(world, camera);
-		cb_gui_render(gui, window, dt);
+		cb_gui_render(gui, window, dt, camera);
 		
 		SDL_GL_SwapWindow(window->window);
 	}

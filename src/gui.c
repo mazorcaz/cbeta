@@ -20,7 +20,7 @@ void cb_gui_free(struct cb_gui* gui) {
 	cb_resource_free(&gui->font);
 }
 
-void cb_gui_render(struct cb_gui* gui, struct cb_window* window, uint64_t dt) {
+void cb_gui_render(struct cb_gui* gui, struct cb_window* window, uint64_t dt, struct cb_camera* camera) {
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
 	glEnable(GL_TEXTURE_2D);
@@ -37,7 +37,7 @@ void cb_gui_render(struct cb_gui* gui, struct cb_window* window, uint64_t dt) {
 	glLoadIdentity();
 	
 	char string[1024];
-	sprintf(string, "fps: %i", (int)((float)SDL_GetPerformanceFrequency() / (float)dt));
+	sprintf(string, "position: %i, %i, %i, fps: %i", (int)camera->x, (int)camera->y, (int)camera->z, (int)((float)SDL_GetPerformanceFrequency() / (float)dt));
 	cb_draw_string(string, 0, 0, &gui->font);
 	
 	glMatrixMode(GL_PROJECTION);

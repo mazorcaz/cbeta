@@ -126,3 +126,15 @@ int cb_draw_string(const char* s, int x, int y, struct cb_resource* font) {
 	}
 	return w;
 }
+
+int cb_getlen_char(char c) {
+	return cb_font_w[c];
+}
+
+int cb_getlen_string(const char* s) {
+	int w=0;
+	while (*s) {
+		w += cb_getlen_char(*s++);
+	}
+	return w;
+}
