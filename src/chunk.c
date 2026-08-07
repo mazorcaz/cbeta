@@ -52,6 +52,6 @@ void cb_chunk_bake(struct cb_chunk* chunk, struct cb_world* world)
 		cache.left = cb_world_get_subchunk(world, x - 1, y, z);
 		
 		cb_subchunk_mesh(subchunk, &world->mesh, &cache);
-		cb_subchunk_bake(subchunk, &world->mesh, &world->terrain);
+		cb_subchunk_bake(subchunk, &world->mesh);
 	}
 }

@@ -137,6 +137,8 @@ void cb_world_render(struct cb_world* world, struct cb_camera* camera) {
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0.1f);
 	
+	glBindTexture(GL_TEXTURE_2D, world->terrain.id);
+	
 	for (int i=0; i<4096; i++) {
 		struct cb_chunk* chunk = world->hashmap[i];
 		while (chunk != NULL) {
