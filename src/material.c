@@ -35,7 +35,6 @@ void cb_materials_bake() {
 	cb_materials[CB_MATERIAL_FENCE]				= (struct cb_material){"fence", CB_RENDER_TYPE_FENCE, false, {4,0}};
 	
 	for (int i=0; i<4096; i++) {
-		printf("baking block %i\n", i);
 		for (int j=0; j<12; j++) {
 			float v = cb_materials[i].offsets[j];
 			cb_materials[i].offsets[j] /= 16.0f;

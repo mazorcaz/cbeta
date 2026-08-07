@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <cbeta/resource.h>
 #include <cbeta/geometry.h>
+#include <cbeta/queue.h>
 
 struct cb_chunk;
 struct cb_subchunk;
@@ -25,6 +26,7 @@ struct cb_chunk* cb_world_get_chunk(struct cb_world* world, int x, int z);
 void cb_world_set_chunk(struct cb_world*, int x, int z, struct cb_chunk* chunk);
 
 struct cb_subchunk* cb_world_get_subchunk(struct cb_world* world, int x, int y, int z);
+void cb_world_dirty_subchunk(struct cb_world* world, int x, int y, int z);
 
 uint16_t cb_world_get_block(struct cb_world* world, int x, int y, int z);
 void cb_world_set_block(struct cb_world* world, int x, int y, int z, uint16_t block);

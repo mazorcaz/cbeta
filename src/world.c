@@ -34,13 +34,6 @@ bool cb_world_init(struct cb_world* world) {
 		}
 	}
 	
-	for (int x=-4; x<4; x++) {
-		for (int z=-4; z<4; z++) {
-			struct cb_chunk* chunk = cb_world_get_chunk(world, x, z);
-			if (chunk) cb_chunk_bake(chunk, world);
-		}
-	}
-	
 	return true;
 }
 
@@ -115,14 +108,35 @@ struct cb_subchunk* cb_world_get_subchunk(struct cb_world* world, int x, int y, 
 	return cb_chunk_get_subchunk(chunk, y);
 }
 
+void cb_world_dirty_subchunk(struct cb_world* world, int x, int y, int z) {
+	struct cb_subchunk* chunk = cb_world_get_subchunk(world, x, y, z);
+	if (chunk) chunk->dirty = true;
+}
+
 uint16_t cb_world_get_block(struct cb_world* world, int x, int y, int z) {
 	struct cb_subchunk* chunk = cb_world_get_subchunk(world, x / 16, y / 16, z / 16);
 	return chunk->blocks[(x & 15) + (y & 15) * 16 + (z & 15) * 256];
 }
 
 void cb_world_set_block(struct cb_world* world, int x, int y, int z, uint16_t block) {
-	struct cb_subchunk* chunk = cb_world_get_subchunk(world, x / 16, y / 16, z / 16);
-	chunk->blocks[(x & 15) + (y & 15) * 16 + (z & 15) * 256] = block;
+	int cx = x / 16;
+	int cy = y / 16;
+	int cz = z / 16;
+	x &= 15;
+	y &= 15;
+	z &= 15;
+	
+	struct cb_subchunk* chunk = cb_world_get_subchunk(world, cx, cy, cz);
+	if (!chunk) return;
+	chunk->blocks[x + y * 16 + z * 256] = block;
+	chunk->dirty = true;
+	
+	if (z == 15) cb_world_dirty_subchunk(world, cx, cy, cz + 1);
+	else if (z == 0) cb_world_dirty_subchunk(world, cx, cy, cz - 1);
+	if (y == 15) cb_world_dirty_subchunk(world, cx, cy + 1, cz);
+	else if (y == 0) cb_world_dirty_subchunk(world, cx, cy - 1, cz);
+	if (x == 15) cb_world_dirty_subchunk(world, cx + 1, cy, cz);
+	else if (x == 0) cb_world_dirty_subchunk(world, cx - 1, cy, cz );
 }
 
 void cb_world_render(struct cb_world* world, struct cb_camera* camera) {
@@ -142,7 +156,7 @@ void cb_world_render(struct cb_world* world, struct cb_camera* camera) {
 	for (int i=0; i<4096; i++) {
 		struct cb_chunk* chunk = world->hashmap[i];
 		while (chunk != NULL) {
-			cb_chunk_render(chunk);
+			cb_chunk_render(chunk, world);
 			chunk = chunk->next;
 		}
 	}

@@ -7,6 +7,7 @@
 #include <cbeta/geometry.h>
 #include <cbeta/material.h>
 #include <cbeta/subchunk_cache.h>
+#include <cbeta/world.h>
 
 void cb_subchunk_init(struct cb_subchunk* chunk, int x, int y, int z)
 {
@@ -104,6 +105,13 @@ void cb_subchunk_bake(struct cb_subchunk* chunk, struct cb_mesh* mesh)
 	glEndList();
 }
 
-void cb_subchunk_render(struct cb_subchunk* chunk) {
+void cb_subchunk_render(struct cb_subchunk* chunk, struct cb_world* world) {
+	if (chunk->dirty) {
+		struct cb_subchunk_cache cache;
+		cb_subchunk_cache_create(&cache, world, chunk);
+		cb_subchunk_mesh(chunk, &world->mesh, &cache);
+		cb_subchunk_bake(chunk, &world->mesh);
+		chunk->dirty = false;
+	}
 	if (chunk->list) glCallList(chunk->list);
 }

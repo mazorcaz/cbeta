@@ -31,9 +31,9 @@ struct cb_subchunk* cb_chunk_get_subchunk(struct cb_chunk* chunk, int y) {
 	return NULL;
 }
 
-void cb_chunk_render(struct cb_chunk* chunk) {
+void cb_chunk_render(struct cb_chunk* chunk, struct cb_world* world) {
 	for (int i=0; i<8; i++) {
-		cb_subchunk_render(chunk->subchunks + i);
+		cb_subchunk_render(chunk->subchunks + i, world);
 	}
 }
 

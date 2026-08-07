@@ -10,6 +10,7 @@
 struct cb_resource;
 struct cb_mesh;
 struct cb_subchunk_cache;
+struct cb_world;
 
 struct cb_subchunk {
 		int x;
@@ -26,6 +27,6 @@ void cb_subchunk_init(struct cb_subchunk* chunk, int x, int y, int z);
 void cb_subchunk_free(struct cb_subchunk* chunk);
 void cb_subchunk_mesh(struct cb_subchunk* chunk, struct cb_mesh* mesh, struct cb_subchunk_cache* cache);
 void cb_subchunk_bake(struct cb_subchunk* chunk, struct cb_mesh* mesh);
-void cb_subchunk_render(struct cb_subchunk* chunk);
+void cb_subchunk_render(struct cb_subchunk* chunk, struct cb_world* world);
 
 #endif
