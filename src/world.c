@@ -6,6 +6,9 @@
 #include <cbeta/chunk.h>
 #include <cbeta/camera.h>
 #include <cbeta/subchunk.h>
+#include <cbeta/v3.h>
+#include <cbeta/loc.h>
+#include <cbeta/material.h>
 
 bool cb_world_init(struct cb_world* world) {
 	for (int i=0; i<4096; i++) {
@@ -114,14 +117,22 @@ void cb_world_dirty_subchunk(struct cb_world* world, int x, int y, int z) {
 }
 
 uint16_t cb_world_get_block(struct cb_world* world, int x, int y, int z) {
-	struct cb_subchunk* chunk = cb_world_get_subchunk(world, x / 16, y / 16, z / 16);
-	return chunk->blocks[(x & 15) + (y & 15) * 16 + (z & 15) * 256];
+	int cx = x < 0 ? (x - 15) / 16 : x / 16;
+	int cy = y < 0 ? (y - 15) / 16 : y / 16;
+	int cz = z < 0 ? (z - 15) / 16 : z / 16;
+	x &= 15;
+	y &= 15;
+	z &= 15;
+	
+	struct cb_subchunk* chunk = cb_world_get_subchunk(world, cx, cy, cz);
+	if (!chunk) return 0;
+	return chunk->blocks[x + y * 16 + z * 256];
 }
 
 void cb_world_set_block(struct cb_world* world, int x, int y, int z, uint16_t block) {
-	int cx = x / 16;
-	int cy = y / 16;
-	int cz = z / 16;
+	int cx = x < 0 ? (x - 15) / 16 : x / 16;
+	int cy = y < 0 ? (y - 15) / 16 : y / 16;
+	int cz = z < 0 ? (z - 15) / 16 : z / 16;
 	x &= 15;
 	y &= 15;
 	z &= 15;
@@ -160,4 +171,45 @@ void cb_world_render(struct cb_world* world, struct cb_camera* camera) {
 			chunk = chunk->next;
 		}
 	}
+}
+
+void cb_world_raycast(struct cb_world* world, struct cb_v3 pos, struct cb_v3 dir, float distance,
+		struct cb_loc* empty, bool* empty_found,
+		struct cb_loc* solid, bool* solid_found)
+{
+	// how to raycast 101
+	// 1. move forward 0.1
+	// 2. get the block its in
+	// 3. if its solid you're done
+
+	// make it 0.1 in the direction
+	dir = cb_v3_normalize(dir);
+	dir = cb_v3_muls(dir, 0.1f);
+
+	struct cb_loc last;
+
+	int steps = distance / 0.1f;
+	for (int i=0; i<steps; i++) {
+		struct cb_loc loc = cb_loc(floorf(pos.x), floorf(pos.y), floorf(pos.z));
+		uint16_t block = cb_world_get_block(world, loc.x, loc.y, loc.z);
+
+		// if solid
+		if (block != CB_MATERIAL_AIR) {
+			*solid_found = true;
+			*solid = loc;
+			if (i == 0) {
+				*empty_found = false;
+			} else {
+				*empty_found = true;
+				*empty = last;
+			}
+			return;
+		}
+
+		last = loc;
+		pos = cb_v3_addv(pos, dir);
+	}
+	
+	*empty_found = false;
+	*solid_found = false;
 }

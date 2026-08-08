@@ -2,15 +2,20 @@
 
 #include <cbeta/camera.h>
 
+#include <stdbool.h>
 #include <math.h>
 #include <GL/gl.h>
+#include <cbeta/world.h>
+#include <cbeta/loc.h>
+#include <cbeta/v3.h>
+#include <cbeta/material.h>
 
 void cb_camera_init(struct cb_camera* camera) {
 	camera->x = 0.0f;
 	camera->y = 0.0f;
 	camera->z = 0.0f;
 	
-	camera->yaw = -90.0f;
+	camera->yaw = 0.0f;
 	camera->pitch = 0.0f;
 
 	camera->speed = 32.0f;
@@ -36,10 +41,10 @@ static void cb_camera_handle_keys(struct cb_camera* camera, const uint8_t* keys,
 
 	float rate = camera->speed * ( ((float)dt ) / (float)SDL_GetPerformanceFrequency());
 	
-	float forward_x = cosf(rad_yaw) * rate;
-	float forward_z = sinf(rad_yaw) * rate;
-	float right_x = -sinf(rad_yaw) * rate;
-	float right_z = cosf(rad_yaw) * rate;
+	float forward_x = sinf(rad_yaw) * rate;
+	float forward_z = -cosf(rad_yaw) * rate;
+	float right_x = cosf(rad_yaw) * rate;
+	float right_z = sinf(rad_yaw) * rate;
 
 	if (keys[SDL_SCANCODE_W]) { camera->x += forward_x; camera->z += forward_z; }
 	if (keys[SDL_SCANCODE_S]) { camera->x -= forward_x; camera->z -= forward_z; }
@@ -49,9 +54,36 @@ static void cb_camera_handle_keys(struct cb_camera* camera, const uint8_t* keys,
 	if (keys[SDL_SCANCODE_LSHIFT]) { camera->y -= rate; }
 }
 
-void cb_camera_handle(struct cb_camera* camera, SDL_Event* event) {
+void cb_camera_handle(struct cb_camera* camera, SDL_Event* event, struct cb_world* world) {
 	if (event->type == SDL_MOUSEMOTION) {
 		cb_camera_handle_mouse(camera, event->motion.xrel, event->motion.yrel);
+	} else if (event->type == SDL_MOUSEBUTTONDOWN) {
+		
+		float rad_yaw = camera->yaw * (M_PI / 180.0f);
+		float rad_pitch = camera->pitch * (M_PI / 180.0f);
+		float sin_yaw = sinf(rad_yaw);
+		float cos_yaw = cosf(rad_yaw);
+		float sin_pitch = sinf(rad_pitch);
+		float cos_pitch = cosf(rad_pitch);
+		
+		struct cb_v3 dir = cb_v3(cos_pitch * sin_yaw, -sin_pitch, cos_pitch * -cos_yaw);
+		struct cb_loc empty, solid;
+		bool empty_found, solid_found;
+		cb_world_raycast(
+				world, cb_v3(camera->x, camera->y, camera->z), dir, 4.0f,
+				&empty, &empty_found,
+				&solid, &solid_found
+		);
+		
+		if (event->button.button == SDL_BUTTON_LEFT) {
+			if (solid_found) {
+				cb_world_set_block(world, solid.x, solid.y, solid.z, CB_MATERIAL_AIR);
+			}
+		} else if (event->button.button == SDL_BUTTON_RIGHT) {
+			if (empty_found) {
+				cb_world_set_block(world, empty.x, empty.y, empty.z, CB_MATERIAL_STONE);
+			}
+		}
 	}
 }
 
@@ -63,7 +95,7 @@ void cb_camera_apply(struct cb_camera* camera) {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glRotatef(camera->pitch, 1.0f, 0.0f, 0.0f);
-	glRotatef(camera->yaw + 90, 0.0f, 1.0f, 0.0f);
+	glRotatef(camera->yaw, 0.0f, 1.0f, 0.0f);
 	glTranslatef(-camera->x, -camera->y, -camera->z);
 }
 

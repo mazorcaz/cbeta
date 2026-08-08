@@ -62,17 +62,13 @@ void cb_engine_run(struct cb_engine* engine) {
 		uint64_t ct = SDL_GetPerformanceCounter();
 		uint64_t dt = ct - engine->lt;
 		engine->lt = ct;
-		
-		if (ct % 100 == 0) {
-			cb_world_set_block(world, ct % 64, 127, (ct >> 16) % 64, 0);
-		}
 
 		// events
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_QUIT) engine->running = false;
 			else {
 				cb_window_handle(window, &event);
-				if (window->focused) cb_camera_handle(camera, &event);
+				if (window->focused) cb_camera_handle(camera, &event, world);
 			}
 		}
 

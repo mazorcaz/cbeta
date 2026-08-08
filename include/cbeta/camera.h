@@ -7,6 +7,8 @@
 #include <SDL2/SDL.h>
 #include <cbeta/window.h>
 
+struct cb_world;
+
 struct cb_camera {
 	float x, y, z;
 	float yaw, pitch;
@@ -14,10 +16,10 @@ struct cb_camera {
 };
 
 void cb_camera_init(struct cb_camera* camera);
-void cb_camera_handle(struct cb_camera* camera, SDL_Event* event);
+void cb_camera_free(struct cb_camera* camera);
+void cb_camera_handle(struct cb_camera* camera, SDL_Event* event, struct cb_world* world);
 void cb_camera_update(struct cb_camera* camera, uint64_t dt);
 void cb_camera_apply(struct cb_camera* camera);
-void cb_camera_free(struct cb_camera* camera);
 
 void cb_set_perspective(float fov, float aspect, float znear, float zfar);
 

@@ -83,6 +83,7 @@ void cb_font_bake() {
 	cb_font_x['='] = 13; cb_font_y['='] = 3; cb_font_w['='] = 6;
 	cb_font_x['>'] = 14; cb_font_y['>'] = 3; cb_font_w['>'] = 5;
 	cb_font_x['?'] = 15; cb_font_y['?'] = 3; cb_font_w['?'] = 6;
+	cb_font_x['-'] = 13; cb_font_y['-'] = 2; cb_font_w['-'] = 6;
 }
 
 int cb_draw_char(char c, int x, int y, struct cb_resource* font) {

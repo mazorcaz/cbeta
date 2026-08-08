@@ -8,6 +8,8 @@
 #include <cbeta/resource.h>
 #include <cbeta/geometry.h>
 #include <cbeta/queue.h>
+#include <cbeta/v3.h>
+#include <cbeta/loc.h>
 
 struct cb_chunk;
 struct cb_subchunk;
@@ -32,5 +34,10 @@ uint16_t cb_world_get_block(struct cb_world* world, int x, int y, int z);
 void cb_world_set_block(struct cb_world* world, int x, int y, int z, uint16_t block);
 
 void cb_world_render(struct cb_world* world, struct cb_camera* camera);
+
+// does the thing
+void cb_world_raycast(struct cb_world* world, struct cb_v3 pos, struct cb_v3 dir, float distance,
+		struct cb_loc* empty, bool* empty_found,
+		struct cb_loc* solid, bool* solid_found);
 
 #endif

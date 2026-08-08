@@ -26,8 +26,9 @@ void cb_subchunk_init(struct cb_subchunk* chunk, int x, int y, int z)
 			for (int x=0; x<16; x++,i++) {
 				uint16_t b = CB_MATERIAL_AIR;
 				
-				if (y == 127) b = CB_MATERIAL_SPRUCE_LEAVES;
-				else if (y >= 120) b = CB_MATERIAL_OAK_LOG;
+				if (y > 70) b = CB_MATERIAL_AIR;
+				else if (y == 70) b = CB_MATERIAL_GRASS;
+				else if (y > 65)  b = CB_MATERIAL_DIRT;
 				else if (y > 0)  b = CB_MATERIAL_STONE;
 				else if (y == 0) b = CB_MATERIAL_BEDROCK;
 				
