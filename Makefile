@@ -3,7 +3,7 @@
 # flags
 CC := gcc
 CFLAGS := -g -Wall -Wextra -Iinclude $(shell sdl2-config --cflags)
-LDLIBS := -lSDL2 -lSDL2_image -lGL -lm
+LDLIBS := -lSDL2 -lSDL2_image -lGL -lz -lm
 
 # files
 SRCS := $(shell find src/ -name "*.c")
