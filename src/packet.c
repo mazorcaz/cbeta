@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <cbeta/nb.h>
 
-void* cb_packet_create(uint8_t id)
+void* cb_packet_init(uint8_t id)
 {
 	void* p;
 	switch (id) {
@@ -54,7 +54,7 @@ void* cb_packet_read(struct cb_nb* nb)
 {
 	uint8_t id;
 	if (!cb_nb_rbyte(nb, &id)) goto fail;
-	void* generic = cb_packet_create(id);
+	void* generic = cb_packet_init(id);
 	if (!generic) {
 		printf("cb_packet_read: cb_packet_init failed\n");
 		return NULL;

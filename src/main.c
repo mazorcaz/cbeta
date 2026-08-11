@@ -17,7 +17,7 @@ int main() {
 	}
 	
 	{
-		struct cb_packet_handshake* packet = cb_packet_create(CB_PACKET_HANDSHAKE);
+		struct cb_packet_handshake* packet = cb_packet_init(CB_PACKET_HANDSHAKE);
 		packet->string0 = cb_strdup("username");
 		cb_packet_write(packet, &nb);
 		cb_packet_free(packet);
@@ -28,7 +28,7 @@ int main() {
 		cb_packet_free(packet);
 	}
 	{
-		struct cb_packet_login_request* packet = cb_packet_create(CB_PACKET_LOGIN_REQUEST);
+		struct cb_packet_login_request* packet = cb_packet_init(CB_PACKET_LOGIN_REQUEST);
 		packet->int0 = 14;
 		packet->string0 = cb_strdup("username");
 		packet->long0 = 0;

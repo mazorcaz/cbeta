@@ -26,8 +26,8 @@ struct cb_nb;
 #define CB_PACKET_PLAYER_PLACE_BLOCK 0x0F // 15
 
 // packet owns all buffers
-// cb_packet_free() must be called when done
-// IT CALLS free() DO NOT CALL FREE YOURSELF
+// cb_packet_free() must be called when done with a packet.
+// CB_PACKET_FREE CALLS FREE() DO NOT CALL FREE YOURSELF
 
 struct cb_packet {
 	uint8_t id;
@@ -71,10 +71,12 @@ struct cb_packet_spawn_position {
     uint32_t int2;
 };
 
-void* cb_packet_create(uint8_t id);
+void* cb_packet_init(uint8_t id);
 void cb_packet_free(void* packet);
 
+// calls cb_packet_init before
 void* cb_packet_read(struct cb_nb* nb);
+
 bool cb_packet_write(void* packet, struct cb_nb* nb);
 
 #endif
