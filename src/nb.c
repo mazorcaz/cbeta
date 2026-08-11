@@ -119,7 +119,7 @@ bool cb_nb_wint(struct cb_nb* nb, uint32_t v) {
 }
 
 bool cb_nb_rlong(struct cb_nb* nb, uint64_t* v) {
-	if (!cb_nb_read(nb, &v, 8)) {
+	if (!cb_nb_read(nb, v, 8)) {
 		printf("cb_nb_rlong: cb_nb_read failed\n");
 		return false;
 	}

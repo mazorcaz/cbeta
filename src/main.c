@@ -35,8 +35,6 @@ int main() {
 		packet->byte0 = 0;
 		cb_packet_write(packet, &nb);
 		cb_packet_free(packet);
-		
-		printf("finished sending\n");
 	}
 	{
 		struct cb_packet* packet = cb_packet_read(&nb);
