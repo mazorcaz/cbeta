@@ -11,7 +11,7 @@
 
 int main() {
 	struct cb_nb nb;
-	if (!cb_nb_init(&nb, "147.185.221.224", 10793)) {
+	if (!cb_nb_init(&nb, "127.0.0.1", 25565 /*"147.185.221.224", 10793*/)) {
 		printf("main: cb_nb_init failed\n");
 		return -1;
 	}
