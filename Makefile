@@ -2,7 +2,7 @@
 
 # flags
 CC := gcc
-CFLAGS := -g -Wall -Wextra -Iinclude $(shell sdl2-config --cflags)
+CFLAGS := -std=c11 -g -Wall -Wextra -Iinclude $(shell sdl2-config --cflags) # For tcc: -D SDL_DISABLE_IMMINTRIN_H
 LDLIBS := -lSDL2 -lSDL2_image -lGL -lz -lm
 
 # files

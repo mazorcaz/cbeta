@@ -10,6 +10,10 @@
 #include <cbeta/v3.h>
 #include <cbeta/material.h>
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 void cb_camera_init(struct cb_camera* camera) {
 	camera->x = 0.0f;
 	camera->y = 0.0f;
